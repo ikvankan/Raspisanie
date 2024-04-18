@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Raspisanie.Data;
 
 namespace Raspisanie
 {
@@ -14,8 +15,7 @@ namespace Raspisanie
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(
                 builder.Configuration.GetConnectionString("Defaultconnection")));
-            builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddDefaultTokenProviders().AddDefaultUI()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.

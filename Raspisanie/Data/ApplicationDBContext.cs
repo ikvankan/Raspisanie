@@ -1,19 +1,18 @@
-﻿namespace Raspisanie.Data
-{
-    public class ApplicationDBContext
-    {
-        public class ApplicationDbContext : IdentityDbContext
-        {
-            public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
-            {
+﻿using Microsoft.EntityFrameworkCore;
+using Raspisanie.Models;
 
-            }
-            public DbSet<ItemType> ItemType { get; set; }
-            public DbSet<Punkt> Punkt { get; set; }
-            public DbSet<Item> Item { get; set; }
-            public DbSet<ApplicationUser> ApplicationUser { get; set; }
-            public DbSet<OrderHeader> OrderHeader { get; set; }
-            public DbSet<OrderDetail> OrderDetail { get; set; }
+namespace Raspisanie.Data
+{
+    
+    public class ApplicationDbContext : DbContext
+    {
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options)
+        {
         }
+        public DbSet<Auditoria> Auditoria { get; set; }
+        public DbSet<Teacher> Teacher { get; set; }
+        public DbSet<Predmet> Predmet { get; set; }
+        public DbSet<Group> Group { get; set; }
+        public DbSet<Placement> Placement { get; set; }
     }
 }
