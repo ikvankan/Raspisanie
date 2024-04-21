@@ -1,0 +1,117 @@
+﻿@model Raspisanie.Models.ViewModels.GroupVM
+@{
+    var title = "Создание группы";
+}
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    @if (Model.Group.Id != 0)
+    {
+        title = "Изменение группы";
+        <input asp-for="Group.Id" hidden />
+    }
+
+    <div class="border p-3">
+
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> @title</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Group.Name"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Group.Name" class="form-control" />
+                        <span asp-validation-for="Group.Name" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Group.Course"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Group.Course" class="form-control" />
+                        <span asp-validation-for="Group.Course" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Group.Specialnost"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Group.Specialnost" class="form-control" />
+                        <span asp-validation-for="Group.Specialnost" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Group.AuditoriaId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Group.AuditoriaId" asp-items="@Model.AuditoriaSelectList" class="form-select">
+                            <option disabled selected>--Выберите аудиторию--</option>
+                        </select>
+                        <span asp-validation-for="Group.AuditoriaId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            @if (Model.Group.Id != 0)
+                            {
+                //Обновить товар
+                                <input type="submit" class="btn btn-info w-100" value="Обновить" />
+                            }
+                            else
+                            {
+                //создать товар
+                                <input type="submit" onclick="return validateInput()" class="btn btn-primary w-100" value="Создать" />
+                            }
+
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Group" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 250
+            });
+        });
+        function validateInput() {
+            if (document.getElementById('uploadBox').value == "") {
+                Swal.fire(
+                    'Error!',
+                    'Пожалуйста загрузите картинку!',
+                    'error'
+                )
+                return false;
+            }
+            return true;
+        }
+    </script>
+}
