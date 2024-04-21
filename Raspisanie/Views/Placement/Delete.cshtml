@@ -1,0 +1,97 @@
+﻿@model Raspisanie.Models.Placement
+
+<form method="post" asp-action="Delete">
+
+
+    <div class="border p-3">
+
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> Удалить группу</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Date"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Date" disabled class="form-control" />
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="GroupId"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Group.Name" disabled class="form-control" />
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="PredmetId"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Predmet.PredmetName" disabled class="form-control" />
+
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="index"></label>
+                    </div>
+                    <div class="col-8">
+                        <input disabled asp-for="index" class="form-control" />
+
+                    </div>
+
+                </div>
+
+
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            @*//удаление*@
+                            <button type="submit" class="btn btn-danger w-100">Удалить</button>
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Placement" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 250
+            });
+            $('.summernote').summernote('disable');
+
+        });
+
+    </script>
+
+}

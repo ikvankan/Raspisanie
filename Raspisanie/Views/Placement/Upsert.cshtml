@@ -1,0 +1,120 @@
+﻿@model Raspisanie.Models.ViewModels.PlacementVM
+@{
+    var title = "Создание растановки";
+}
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    @if (Model.Placement.Id != 0)
+    {
+        title = "Изменение растановки";
+        <input asp-for="Placement.Id" hidden />
+    }
+
+    <div class="border p-3">
+
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> @title</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.Date"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Placement.Date" class="form-control" />
+                        <span asp-validation-for="Placement.Date" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.GroupId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.GroupId" asp-items="@Model.GroupSelectList" class="form-select">
+                            <option disabled selected>--Выберите группу--</option>
+                        </select>
+                        <span asp-validation-for="Placement.GroupId" class="text-danger"></span>
+                    </div>
+
+                </div>
+                
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.PredmetId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.PredmetId" asp-items="@Model.PredmetSelectList" class="form-select">
+                            <option disabled selected>--Выберите предмет--</option>
+                        </select>
+                        <span asp-validation-for="Placement.PredmetId" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.index"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Placement.index" class="form-control" />
+                        <span asp-validation-for="Placement.index" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            @if (Model.Placement.Id != 0)
+                            {
+                //Обновить товар
+                                <input type="submit" class="btn btn-info w-100" value="Обновить" />
+                            }
+                            else
+                            {
+                //создать товар
+                                <input type="submit" onclick="return validateInput()" class="btn btn-primary w-100" value="Создать" />
+                            }
+
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Placement" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 250
+            });
+        });
+        function validateInput() {
+            if (document.getElementById('uploadBox').value == "") {
+                Swal.fire(
+                    'Error!',
+                    'Пожалуйста загрузите картинку!',
+                    'error'
+                )
+                return false;
+            }
+            return true;
+        }
+    </script>
+}
