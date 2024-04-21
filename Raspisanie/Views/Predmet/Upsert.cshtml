@@ -1,0 +1,107 @@
+﻿@model Raspisanie.Models.ViewModels.PredmetVM
+@{
+    var title = "Создание Дисциплины";
+}
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    @if (Model.Predmet.Id != 0)
+    {
+        title = "Изменение товара";
+        <input asp-for="Predmet.Id" hidden />
+    }
+
+    <div class="border p-3">
+
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> @title</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.PredmetName"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Predmet.PredmetName" class="form-control" />
+                        <span asp-validation-for="Predmet.PredmetName" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.TeacherId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Predmet.TeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
+                            <option disabled selected>--Выберите тип товара--</option>
+                        </select>
+                        <span asp-validation-for="Predmet.TeacherId" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.Hours"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Predmet.Hours" class="form-control" />
+                        <span asp-validation-for="Predmet.Hours" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            @if (Model.Predmet.Id != 0)
+                            {
+                //Обновить товар
+                                <input type="submit" class="btn btn-info w-100" value="Обновить" />
+                            }
+                            else
+                            {
+                //создать товар
+                                <input type="submit" onclick="return validateInput()" class="btn btn-primary w-100" value="Создать" />
+                            }
+
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Predmet" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 250
+            });
+        });
+        function validateInput() {
+            if (document.getElementById('uploadBox').value == "") {
+                Swal.fire(
+                    'Error!',
+                    'Пожалуйста загрузите картинку!',
+                    'error'
+                )
+                return false;
+            }
+            return true;
+        }
+    </script>
+}
