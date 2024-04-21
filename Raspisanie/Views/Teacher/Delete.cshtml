@@ -1,0 +1,75 @@
+﻿@model Raspisanie.Models.Teacher
+
+<form method="post" asp-action="Delete">
+
+
+    <div class="border p-3">
+
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> Удалить преподователя</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="TeacherName"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="TeacherName" disabled class="form-control" />
+
+                    </div>
+
+                </div>
+                
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="AuditoryId"></label>
+                    </div>
+                    <div class="col-8">
+                        <input disabled asp-for="Auditoria.AuditoryName" class="form-control" />
+
+                    </div>
+
+                </div>
+                
+
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            @*//удаление*@
+                            <button type="submit" class="btn btn-danger w-100">Удалить</button>
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Teacher" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+                
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 250
+            });
+            $('.summernote').summernote('disable');
+
+        });
+
+    </script>
+
+}

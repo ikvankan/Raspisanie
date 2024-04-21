@@ -1,0 +1,97 @@
+﻿@model Raspisanie.Models.ViewModels.TeacherVM
+@{
+    var title = "Создание товара";
+}
+<form method="post" asp-action="Upsert" enctype="multipart/form-data">
+    @if (Model.Teacher.Id != 0)
+    {
+        title = "Изменение товара";
+        <input asp-for="Teacher.Id" hidden />
+    }
+
+    <div class="border p-3">
+
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> @title</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Teacher.TeacherName"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Teacher.TeacherName" class="form-control" />
+                        <span asp-validation-for="Teacher.TeacherName" class="text-danger"></span>
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Teacher.AuditoryId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Teacher.AuditoryId" asp-items="@Model.AuditoriaSelectList" class="form-select">
+                            <option disabled selected>--Выберите тип товара--</option>
+                        </select>
+                        <span asp-validation-for="Teacher.AuditoryId" class="text-danger"></span>
+                    </div>
+
+                </div>
+                
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            @if (Model.Teacher.Id != 0)
+                            {
+                //Обновить товар
+                                <input type="submit" class="btn btn-info w-100" value="Обновить" />
+                            }
+                            else
+                            {
+                //создать товар
+                                <input type="submit" onclick="return validateInput()" class="btn btn-primary w-100" value="Создать" />
+                            }
+
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Teacher" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+                
+
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+    <script>
+        $(document).ready(function () {
+            $('.summernote').summernote({
+                height: 250
+            });
+        });
+        function validateInput() {
+            if (document.getElementById('uploadBox').value == "") {
+                Swal.fire(
+                    'Error!',
+                    'Пожалуйста загрузите картинку!',
+                    'error'
+                )
+                return false;
+            }
+            return true;
+        }
+    </script>
+}
