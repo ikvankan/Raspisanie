@@ -1,0 +1,67 @@
+﻿@model Raspisanie.Models.Auditoria
+
+<form method="post" asp-action="DeletePost">
+    <div class="border p-3">
+        <input asp-for="Id" hidden />
+        <div class="mb-3 row">
+            <h2 class="text-info pl-3"> Удалить аудиторию</h2>
+        </div>
+        <div class="row">
+            <div class="col-8">
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="AuditoryName"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="AuditoryName" disabled class="form-control" />
+
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Proektor"></label>
+                    </div>
+                    <div class="col-8">
+                        <input disabled asp-for="Proektor" class="form-check-input" />
+
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="LekciaOrPractica"></label>
+                    </div>
+                    <div class="col-8">
+                        <input disabled asp-for="LekciaOrPractica" class="form-check-input" />
+
+                    </div>
+
+                </div>
+                <div class="mb-3 row">
+                    <div class="col-8 offset-4 row">
+
+                        <div class="col">
+                            <input type="submit" class="btn btn-danger w-100" value="Удалить" />
+                        </div>
+                        <div class="col">
+                            <a asp-controller="Auditoria" asp-action="Index" class="btn btn-success w-100">
+                                <i class="fa-solid fa-right-from-bracket"></i> &nbsp; Назад
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-4">
+                @* Keep this empty *@
+            </div>
+        </div>
+    </div>
+</form>
+@section Scripts{
+
+    @{
+        <partial name="_ValidationScriptsPartial" />
+    }
+
+}
