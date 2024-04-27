@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Raspisanie.Data;
 using Raspisanie.Models;
+using Raspisanie.Models.ViewModels;
 using System.Diagnostics;
 
 namespace Raspisanie.Controllers
@@ -40,9 +43,13 @@ namespace Raspisanie.Controllers
         [HttpPost]
         public IActionResult Generate(string groupNumber)
         {
+
+            
+
+
             IEnumerable<Group> groupList = _db.Group.ToList();
             IEnumerable<Predmet> predmetList = _db.Predmet.ToList();
-            List<Placement> newSchedules = new List<Placement>();
+            List<PlacementVM> newSchedules = new List<PlacementVM>();
 
             // Получение текущей даты
             string currentDate = DateTime.Now.ToString("dd-MM-yyyy");
@@ -95,15 +102,31 @@ namespace Raspisanie.Controllers
                 System.IO.File.AppendAllText(path, entry);
 
                 // Создание нового объекта Schedule и добавление его в базу данных
-                Placement schedule = new Placement
+                Placement placement = new Placement
                 {
                     GroupId = groupId,
                     PredmetId = subjectId,
                     Date = DateTime.Now.ToString(),
                     index = randomNumber
                 };
-                _db.Placement.Add(schedule);
-                newSchedules.Add(schedule);
+                _db.Placement.Add(placement);
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    })
+                };
+
+                // Добавление нового ViewModel в список
+                newSchedules.Add(placementVM);
             }
 
             
@@ -111,6 +134,32 @@ namespace Raspisanie.Controllers
 
             return View(newSchedules);
         }
+
+
+
+        [HttpPost]
+        public IActionResult SaveSchedules(List<PlacementVM> placementVMs)
+        {
+            
+            
+            foreach (var placementVM in placementVMs)
+            {
+                // Если Id Placement равен нулю, это новая запись, иначе - обновление существующей
+                if (placementVM.Placement.Id == 0)
+                {
+                    _db.Placement.Add(placementVM.Placement);
+                }
+                else
+                {
+                    _db.Placement.Update(placementVM.Placement);
+                }
+            }
+            _db.SaveChanges();
+            return RedirectToAction("Index");
+            
+
+        }
+
 
 
     }
