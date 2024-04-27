@@ -14,13 +14,18 @@ namespace Raspisanie.Controllers
 
         [HttpGet]
         [Route("/SendMessageToBot")]
-        public async Task<IActionResult> SendMessageToBot()
+        public async Task<IActionResult> SendMessageToBot(string chatId,string message)
         {
-            string chatId = "486450728";
-            string message = "Привет, я отправил сообщение через ASP.NET Core!";
-
             await _telegramBotService.SendMessageAsync(chatId, message);
-            await _telegramBotService.SendDocumentAsync(chatId, "C:\\Users\\User\\Desktop\\DP\\Raspisanie\\Raspisanie\\Files\\БД курсач.docx");
+            return Ok(new { status = "Message sent" });
+        }
+        
+        
+        [HttpGet]
+        [Route("/SendFileToBot")]
+        public async Task<IActionResult> SendFileToBot(string chatId,string filePath)
+        {
+            await _telegramBotService.SendDocumentAsync(chatId, filePath);
             return Ok(new { status = "Message sent" });
         }
     }

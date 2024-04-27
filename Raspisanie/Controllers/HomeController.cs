@@ -12,14 +12,16 @@ namespace Raspisanie.Controllers
     {
         private readonly ILogger<HomeController> _logger;
 
+        private readonly TelegramBotService _telegramBotService;
 
         private readonly ApplicationDbContext _db;
         
 
-        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db)
+        public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, TelegramBotService telegramBotService)
         {
             _logger = logger;
             _db = db;
+            _telegramBotService = telegramBotService;
         }
 
         public IActionResult Index()
@@ -49,7 +51,7 @@ namespace Raspisanie.Controllers
 
             IEnumerable<Group> groupList = _db.Group.ToList();
             IEnumerable<Predmet> predmetList = _db.Predmet.ToList();
-            List<PlacementVM> newSchedules = new List<PlacementVM>();
+            List<PlacementVM> newPlacements = new List<PlacementVM>();
 
             // Получение текущей даты
             string currentDate = DateTime.Now.ToString("dd-MM-yyyy");
@@ -126,13 +128,13 @@ namespace Raspisanie.Controllers
                 };
 
                 // Добавление нового ViewModel в список
-                newSchedules.Add(placementVM);
+                newPlacements.Add(placementVM);
             }
 
             
             
 
-            return View(newSchedules);
+            return View(newPlacements);
         }
 
 
@@ -144,6 +146,7 @@ namespace Raspisanie.Controllers
             
             foreach (var placementVM in placementVMs)
             {
+                
                 // Если Id Placement равен нулю, это новая запись, иначе - обновление существующей
                 if (placementVM.Placement.Id == 0)
                 {
@@ -155,12 +158,29 @@ namespace Raspisanie.Controllers
                 }
             }
             _db.SaveChanges();
+            string chatId = "486450728";
+            string message = "Сохраненные данные:\n";
+            foreach (var placementVM in placementVMs)
+            {
+                var group = _db.Group.FirstOrDefault(g => g.Id == placementVM.Placement.GroupId);
+                var predmet = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.PredmetId);
+                message += $"Группа: {group.Name}, Дисциплина: {predmet.PredmetName}, Date: {placementVM.Placement.Date}, Index: {placementVM.Placement.index}\n";
+            }
+
+            // Отправка сообщения боту
+
+            SendMessageToBot(chatId, message);
             return RedirectToAction("Index");
-            
 
         }
 
-
+        [HttpGet]
+        [Route("/SendMessageToBot")]
+        public async Task<IActionResult> SendMessageToBot(string chatId, string message)
+        {
+            await _telegramBotService.SendMessageAsync(chatId, message);
+            return Ok(new { status = "Message sent" });
+        }
 
     }
 }
