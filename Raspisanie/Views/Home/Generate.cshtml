@@ -1,0 +1,21 @@
+﻿@model IEnumerable<Placement>
+
+<table>
+    <tr>
+        <th>GroupId</th>
+        <th>SubjectId</th>
+        <th>Date</th>
+        <th>RandomNumber</th>
+    </tr>
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>@item.Group.Name</td>
+            <td>@item.Predmet.PredmetName</td>
+            <td>@item.Date</td>
+            <td>@item.index</td>
+        </tr>
+    }
+</table>
+
+
