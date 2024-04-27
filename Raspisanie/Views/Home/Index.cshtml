@@ -4,5 +4,14 @@
 
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
+    <button id="sendMessageButton">Отправить сообщение боту</button>
+    <button id="GenerateFile">Сгенерировать расписание и отправить его в бота</button> 
     <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
+<script>
+    document.getElementById('sendMessageButton').addEventListener('click', async () => {
+        const response = await fetch('/SendMessageToBot');
+        const data = await response.json();
+        console.log(data);
+    });
+</script>

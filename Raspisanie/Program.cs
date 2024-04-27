@@ -11,6 +11,8 @@ namespace Raspisanie
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
+            builder.Services.AddSingleton<TelegramBotService>(new TelegramBotService("7118569820:AAGKrobfosdvVyx44fTS9SpSJkeKL6i8WfI"));
+            builder.Services.AddControllers();
             builder.Services.AddControllersWithViews();
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(
