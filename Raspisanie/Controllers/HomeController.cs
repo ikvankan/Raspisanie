@@ -51,6 +51,9 @@ namespace Raspisanie.Controllers
 
             IEnumerable<Group> groupList = _db.Group.ToList();
             IEnumerable<Predmet> predmetList = _db.Predmet.ToList();
+            IEnumerable<Auditoria> AuditoriaList = _db.Auditoria.ToList();
+
+
             List<PlacementVM> newPlacements = new List<PlacementVM>();
 
             // Получение текущей даты
@@ -70,8 +73,11 @@ namespace Raspisanie.Controllers
             }
             int groupId = group.Id;
 
+
+
+            IEnumerable<Predmet> filteredPredmetList = predmetList.Where(p => p.GroupId == groupId).ToList();
             // Генерация случайного числа от 1 до 3
-            
+
 
             // Создание записей в зависимости от дня недели
             int numberOfEntries = DateTime.Now.DayOfWeek == DayOfWeek.Friday ? 4 : 3;
@@ -81,21 +87,23 @@ namespace Raspisanie.Controllers
                 Random random = new Random();
                 int randomNumber = i+1;
                 // Выбор случайного предмета
-                int randomIndex = random.Next(predmetList.Count())+1;
+                int randomIndex = random.Next(filteredPredmetList.Count())+1;
 
-                int[] Ids = new int[predmetList.Count()];
-
+                int[] Ids = new int[filteredPredmetList.Count()];
+                int[] Auds = new int[filteredPredmetList.Count()];
 
                 int id_index = 0;
-                foreach (var predmet in predmetList)
+                foreach (var predmet in filteredPredmetList)
                 {
                     Ids[id_index] = predmet.Id;
+                    Auds[id_index] = predmet.Group.AuditoriaId;
                     id_index++;
                 }
 
                 //var randomSubject = predmetList.FirstOrDefault(g=>g.PredmetName == "Физика");
-                
-                int subjectId = Ids[random.Next(0, Ids.Length)];
+                int randomnum = random.Next(0, Ids.Length);
+                int subjectId = Ids[randomnum];
+                int auditoriaId = Auds[randomnum];
 
                 // Создание строки для записи в файл
                 string entry = $"Номер группы: {groupNumber}, Дата: {currentDate}, Id группы: {groupId}, Id предмета: {subjectId}, Случайное число: {randomNumber}\n";
@@ -109,7 +117,8 @@ namespace Raspisanie.Controllers
                     GroupId = groupId,
                     PredmetId = subjectId,
                     Date = DateTime.Now.ToString(),
-                    index = randomNumber
+                    index = randomNumber,
+                    AuditoriaId = auditoriaId
                 };
                 _db.Placement.Add(placement);
                 PlacementVM placementVM = new PlacementVM()
@@ -123,6 +132,11 @@ namespace Raspisanie.Controllers
                     PredmetSelectList = _db.Predmet.Select(i => new SelectListItem
                     {
                         Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
                         Value = i.Id.ToString()
                     })
                 };
@@ -164,7 +178,8 @@ namespace Raspisanie.Controllers
             {
                 var group = _db.Group.FirstOrDefault(g => g.Id == placementVM.Placement.GroupId);
                 var predmet = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.PredmetId);
-                message += $"Группа: {group.Name}, Дисциплина: {predmet.PredmetName}, Date: {placementVM.Placement.Date}, Index: {placementVM.Placement.index}\n";
+                var auditoria = _db.Auditoria.FirstOrDefault(p => p.Id == placementVM.Placement.AuditoriaId);
+                message += $"Группа: {group.Name}, Дисциплина: {predmet.PredmetName}, Date: {placementVM.Placement.Date}, Index: {placementVM.Placement.index}, Аудитория: {auditoria.AuditoryName}\n";
             }
 
             // Отправка сообщения боту

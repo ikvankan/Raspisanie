@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Raspisanie.Data;
 
@@ -10,9 +11,10 @@ using Raspisanie.Data;
 namespace Raspisanie.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240428172809_AddFieldPredmetId_fergnKeey_ToTableGroup")]
+    partial class AddFieldPredmetId_fergnKeey_ToTableGroup
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -62,6 +64,9 @@ namespace Raspisanie.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("PredmetId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Specialnost")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -69,6 +74,8 @@ namespace Raspisanie.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AuditoriaId");
+
+                    b.HasIndex("PredmetId");
 
                     b.ToTable("Group");
                 });
@@ -116,9 +123,6 @@ namespace Raspisanie.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
                     b.Property<int>("Hours")
                         .HasColumnType("int");
 
@@ -130,8 +134,6 @@ namespace Raspisanie.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
 
                     b.HasIndex("TeacherId");
 
@@ -168,7 +170,15 @@ namespace Raspisanie.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Raspisanie.Models.Predmet", "Predmet")
+                        .WithMany()
+                        .HasForeignKey("PredmetId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Auditoria");
+
+                    b.Navigation("Predmet");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Placement", b =>
@@ -200,19 +210,11 @@ namespace Raspisanie.Migrations
 
             modelBuilder.Entity("Raspisanie.Models.Predmet", b =>
                 {
-                    b.HasOne("Raspisanie.Models.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Raspisanie.Models.Teacher", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Group");
 
                     b.Navigation("Teacher");
                 });

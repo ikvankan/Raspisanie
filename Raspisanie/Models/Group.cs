@@ -13,5 +13,6 @@ namespace Raspisanie.Models
         public int AuditoriaId { get; set; }
         [ForeignKey("AuditoriaId")]
         public virtual Auditoria Auditoria { get; set; }
+        
     }
 }

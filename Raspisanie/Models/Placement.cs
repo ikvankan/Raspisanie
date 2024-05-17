@@ -15,5 +15,8 @@ namespace Raspisanie.Models
         [ForeignKey("PredmetId")]
         public virtual Predmet Predmet { get; set; }
         public int index { get; set; }
+        public int AuditoriaId { get; set; }
+        [ForeignKey("AuditoriaId")]
+        public virtual Auditoria Auditoria { get; set; }
     }
 }

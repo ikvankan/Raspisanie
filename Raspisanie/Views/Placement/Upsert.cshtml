@@ -61,6 +61,18 @@
                     </div>
 
                 </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.AuditoriaId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.AuditoriaId" asp-items="@Model.AuditoriaSelectList" class="form-select">
+                            <option disabled selected>--Выберите аудиторию--</option>
+                        </select>
+                        <span asp-validation-for="Placement.AuditoriaId" class="text-danger"></span>
+                    </div>
+
+                </div>
 
                 <div class="mb-3 row">
                     <div class="col-8 offset-4 row">

@@ -13,6 +13,10 @@
             <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList"></select>
         </div>
         <div>
+            <label asp-for="@Model[i].Placement.AuditoriaId"></label>
+            <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+        </div>
+        <div>
             <label asp-for="@Model[i].Placement.Date"></label>
             <input asp-for="@Model[i].Placement.Date" />
         </div>
@@ -20,6 +24,7 @@
             <label asp-for="@Model[i].Placement.index"></label>
             <input asp-for="@Model[i].Placement.index" />
         </div>
+        <br />
     }
-    <input type="submit" value="Save" />
+    <input type="submit" value="Сохранить и отправить" />
 </form>

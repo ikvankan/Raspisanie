@@ -31,6 +31,9 @@
                     <th>
                         порядок
                     </th>
+                    <th>
+                        аудитория
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -41,7 +44,8 @@
                         <td width="20%">@obj.Date</td>
                         <td width="20%">@obj.Group.Name</td>
                         <td width="20%">@obj.Predmet.PredmetName</td>
-                        <td width="20%">@obj.index</td>
+                        <td width="10%">@obj.index</td>
+                        <td width="10%">@obj.Auditoria.AuditoryName</td>
                         <td class="text-center">
                             <div class="w-75 btn-group" role="group">
                                 <a asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary ">

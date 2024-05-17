@@ -7,5 +7,6 @@ namespace Raspisanie.Models.ViewModels
         public Placement Placement { get; set; }
         public IEnumerable<SelectListItem> GroupSelectList { get; set; }
         public IEnumerable<SelectListItem> PredmetSelectList { get; set; }
+        public IEnumerable<SelectListItem> AuditoriaSelectList { get; set; }
     }
 }

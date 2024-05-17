@@ -12,5 +12,8 @@ namespace Raspisanie.Models
         [ForeignKey("TeacherId")]
         public virtual Teacher Teacher { get; set; }
         public int Hours { get; set; }
+        public int GroupId { get; set; }
+        [ForeignKey("GroupId")]
+        public virtual Group Group { get; set; }
     }
 }

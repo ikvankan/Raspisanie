@@ -48,6 +48,18 @@
                     </div>
 
                 </div>
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.GroupId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Predmet.GroupId" asp-items="@Model.GroupSelectList" class="form-select">
+                            <option disabled selected>--Выберите тип товара--</option>
+                        </select>
+                        <span asp-validation-for="Predmet.GroupId" class="text-danger"></span>
+                    </div>
+
+                </div>
 
                 <div class="mb-3 row">
                     <div class="col-8 offset-4 row">
