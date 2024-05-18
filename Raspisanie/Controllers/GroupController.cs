@@ -97,6 +97,23 @@ namespace Raspisanie.Controllers
         {
             var obj = _db.Group.Find(Id);
             if (obj == null) { return NotFound(); }
+
+            var relatedPlacements = _db.Placement.Where(p=>p.GroupId==obj.Id).ToList();
+            var relatedPredmets = _db.Predmet.Where(p => p.GroupId == obj.Id).ToList();
+            _db.Placement.RemoveRange(relatedPlacements);
+
+
+            foreach(var predmet in relatedPredmets)
+            {
+                var relatedPlacementsInPredmets = _db.Placement.Where(pl => pl.PredmetId == predmet.Id).ToList();
+                _db.Placement.RemoveRange(relatedPlacementsInPredmets);
+            }
+
+
+            _db.Predmet.RemoveRange(relatedPredmets);
+
+
+
             _db.Group.Remove(obj);
             _db.SaveChanges();
             TempData[WC.Success] = "Аудитория удалена успешно!";
