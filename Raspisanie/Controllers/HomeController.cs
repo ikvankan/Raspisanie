@@ -1,10 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Raspisanie.Data;
 using Raspisanie.Models;
 using Raspisanie.Models.ViewModels;
 using System.Diagnostics;
+using System.IO;
+using System.Text.RegularExpressions;
 
 namespace Raspisanie.Controllers
 {
@@ -49,7 +52,7 @@ namespace Raspisanie.Controllers
             
 
 
-            IEnumerable<Group> groupList = _db.Group.ToList();
+            IEnumerable<Models.Group> groupList = _db.Group.ToList();
             IEnumerable<Predmet> predmetList = _db.Predmet.ToList();
             IEnumerable<Auditoria> AuditoriaList = _db.Auditoria.ToList();
 
@@ -76,9 +79,6 @@ namespace Raspisanie.Controllers
 
 
             IEnumerable<Predmet> filteredPredmetList = predmetList.Where(p => p.GroupId == groupId).ToList();
-            // Генерация случайного числа от 1 до 3
-
-
             // Создание записей в зависимости от дня недели
             int numberOfEntries = DateTime.Now.DayOfWeek == DayOfWeek.Friday ? 4 : 3;
 
@@ -111,7 +111,7 @@ namespace Raspisanie.Controllers
                 // Добавление строки в файл
                 System.IO.File.AppendAllText(path, entry);
 
-                // Создание нового объекта Schedule и добавление его в базу данных
+                // Создание нового объекта Placement и добавление его в базу данных
                 Placement placement = new Placement
                 {
                     GroupId = groupId,
@@ -195,6 +195,105 @@ namespace Raspisanie.Controllers
         {
             await _telegramBotService.SendMessageAsync(chatId, message);
             return Ok(new { status = "Message sent" });
+        }
+
+
+        [HttpPost]
+        public IActionResult GenerateAll(DateTime DateToGenerate)
+        {
+            IEnumerable<Models.Group> GroupList = _db.Group.ToList();
+            IEnumerable<Predmet> PredmetList = _db.Predmet.ToList();
+            IEnumerable<Auditoria> AuditoriaList = _db.Auditoria.ToList();
+            IEnumerable<Teacher> TeacherList = _db.Teacher.ToList();
+            List<PlacementVM> newPlacements = new List<PlacementVM>();
+            int numOfPredmet = 0;
+            switch (DateToGenerate.DayOfWeek)
+            {
+                case DayOfWeek.Monday:
+                    numOfPredmet = 3;
+                    break;
+                case DayOfWeek.Tuesday:
+                    numOfPredmet = 4;
+                    break;
+                case DayOfWeek.Wednesday:
+                    numOfPredmet = 3;
+                    break;
+                case DayOfWeek.Thursday:
+                    numOfPredmet = 4;
+                    break;
+                case DayOfWeek.Friday:
+                    numOfPredmet = 3;
+                    break;
+                case DayOfWeek.Saturday:
+                    numOfPredmet = 2;
+                    break;
+                default:
+                    throw new ArgumentException("error");
+            }
+
+
+            foreach (var group in GroupList)
+            {
+                IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == group.Id).ToList();
+                for (int i = 0; i < numOfPredmet; i++)
+                {
+                    Random random = new Random();
+                    int randomNumber = i + 1;
+                    // Выбор случайного предмета
+                    int randomIndex = random.Next(filteredPredmetList.Count()) + 1;
+
+                    int[] Ids = new int[filteredPredmetList.Count()];
+                    int[] Auds = new int[filteredPredmetList.Count()];
+
+                    int id_index = 0;
+                    foreach (var predmet in filteredPredmetList)
+                    {
+                        Ids[id_index] = predmet.Id;
+                        Auds[id_index] = predmet.Group.AuditoriaId;
+                        id_index++;
+                    }
+
+                    int randomnum = random.Next(0, Ids.Length);
+                    int subjectId = Ids[randomnum];
+                    int auditoriaId = Auds[randomnum];
+
+                    // Создание нового объекта Placement и добавление его в базу данных
+                    Placement placement = new Placement
+                    {
+                        GroupId = group.Id,
+                        PredmetId = subjectId,
+                        Date = DateToGenerate.ToShortDateString().ToString(),
+                        index = randomNumber,
+                        AuditoriaId = auditoriaId
+                    };
+                    _db.Placement.Add(placement);
+                    PlacementVM placementVM = new PlacementVM()
+                    {
+                        Placement = placement,
+                        GroupSelectList = _db.Group.Select(i => new SelectListItem
+                        {
+                            Text = i.Name,
+                            Value = i.Id.ToString()
+                        }),
+                        PredmetSelectList = _db.Predmet.Select(i => new SelectListItem
+                        {
+                            Text = i.PredmetName,
+                            Value = i.Id.ToString()
+                        }),
+                        AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                        {
+                            Text = i.AuditoryName,
+                            Value = i.Id.ToString()
+                        })
+                    };
+
+                    // Добавление нового ViewModel в список
+                    newPlacements.Add(placementVM);
+                }
+
+            }
+            
+            return View(newPlacements);
         }
 
     }

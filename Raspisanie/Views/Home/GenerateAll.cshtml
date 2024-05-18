@@ -1,0 +1,117 @@
+﻿@model List<Raspisanie.Models.ViewModels.PlacementVM>
+@{
+    int old = 0;
+    int temp = 0;
+}
+@foreach(var obj in Model)
+{
+    <p>Расписание на @obj.Placement.Date</p>
+
+    break;
+}
+<style>
+    td {
+        border: 1px solid grey;
+        border-collapse: collapse;
+    }
+</style>
+<table style="width:100%">
+    <tr>
+        <td colspan="2">День недели</td>
+    </tr>
+    <tr>
+        <td width="20%">
+            Номер группы, ауд
+        </td>
+        <td>
+            Расписание
+        </td>
+    </tr>
+</table>
+<form asp-action="SaveSchedules">
+    
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        
+        temp = Model[i].Placement.GroupId;
+        @if (old == temp)
+        {
+            <br />
+        }
+        else
+        {
+            <hr />
+            old = temp;
+        }
+            <input type="hidden" asp-for="@Model[i].Placement.Id" />
+            
+            <select disabled asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
+
+            <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList"></select>
+            
+            <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+            
+            <input type="hidden" asp-for="@Model[i].Placement.Date" />
+            
+            <input asp-for="@Model[i].Placement.index" />
+            
+        
+
+    }
+    <input type="submit" value="Сохранить и отправить" />
+</form>
+
+
+<table>
+
+    <tr>
+
+        <th colspan="2">Заголовок</th>
+
+    </tr>
+
+    <tr>
+
+        <td>
+
+            Моя первая таблица
+
+        </td>
+
+        <td>
+
+            А вот и столбец
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+
+            А вот и новая строка
+
+        </td>
+
+        <td rowspan="2">
+
+            И еще один столбец
+
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td rowspan="2">
+
+            Третья строка!
+
+        </td>
+
+
+
+    </tr>
+
+</table>
