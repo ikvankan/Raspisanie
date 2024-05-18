@@ -98,6 +98,11 @@ namespace Raspisanie.Controllers
         {
             var obj = _db.Teacher.Find(Id);
             if (obj == null) { return NotFound(); }
+
+            var relatedPredmets = _db.Predmet.Where(p=>p.TeacherId==obj.Id).ToList();
+            _db.Predmet.RemoveRange(relatedPredmets);
+
+
             _db.Teacher.Remove(obj);
             _db.SaveChanges();
             TempData[WC.Success] = "Аудитория удалена успешно!";

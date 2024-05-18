@@ -70,14 +70,6 @@ namespace Raspisanie.Controllers
         {
             var obj = _db.Auditoria.Find(Id);
             if (obj == null) { return NotFound(); }
-
-
-
-
-            
-
-
-
             // Находим связанные записи в таблице Group и Teacher и Placement
             var relatedGroups = _db.Group.Where(p => p.AuditoriaId == obj.Id).ToList();
             var relatedTeachers = _db.Teacher.Where(p => p.AuditoryId == obj.Id).ToList();
@@ -94,7 +86,6 @@ namespace Raspisanie.Controllers
                 }
                 _db.Predmet.RemoveRange(relatedPredmets);
                 _db.Placement.RemoveRange(relatedPlacementsInGroups);
-
                 // Удаляем связанные записи из таблицы Group
                 _db.Group.Remove(group);
             }
@@ -102,7 +93,6 @@ namespace Raspisanie.Controllers
             {
                 // Находим связанные записи в таблице Predmet
                 var relatedPredmets = _db.Predmet.Where(pl => pl.TeacherId == teacher.Id).ToList();
-
                 foreach(var predmet in relatedPredmets)
                 {
                     var relatedPlacementsInPredmet = _db.Placement.Where(pll=> pll.PredmetId == predmet.Id).ToList();
@@ -117,10 +107,8 @@ namespace Raspisanie.Controllers
             }
             _db.Placement.RemoveRange(relatedPlacements);
 
-
             // Удаляем запись из таблицы Auditoria
             _db.Auditoria.Remove(obj);
-
             _db.SaveChanges();
             TempData[WC.Success] = "Аудитория и связанные с ней записи удалены успешно!";
             return RedirectToAction("Index");
