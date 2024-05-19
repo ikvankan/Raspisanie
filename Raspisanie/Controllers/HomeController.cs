@@ -278,7 +278,7 @@ namespace Raspisanie.Controllers
                             Text = i.Name,
                             Value = i.Id.ToString()
                         }),
-                        PredmetSelectList = _db.Predmet.Select(i => new SelectListItem
+                        PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
                         {
                             Text = i.PredmetName,
                             Value = i.Id.ToString()
