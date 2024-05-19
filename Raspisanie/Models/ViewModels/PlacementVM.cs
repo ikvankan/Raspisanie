@@ -8,5 +8,6 @@ namespace Raspisanie.Models.ViewModels
         public IEnumerable<SelectListItem> GroupSelectList { get; set; }
         public IEnumerable<SelectListItem> PredmetSelectList { get; set; }
         public IEnumerable<SelectListItem> AuditoriaSelectList { get; set; }
+        public int NumOfPredmets { get; set; }
     }
 }

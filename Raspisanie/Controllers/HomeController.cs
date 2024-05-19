@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
@@ -270,6 +271,7 @@ namespace Raspisanie.Controllers
                     PlacementVM placementVM = new PlacementVM()
                     {
                         Placement = placement,
+                        NumOfPredmets = numOfPredmet,
                         GroupSelectList = _db.Group.Select(i => new SelectListItem
                         {
                             Text = i.Name,
@@ -295,6 +297,12 @@ namespace Raspisanie.Controllers
             
             return View(newPlacements);
         }
-
+        public string GetTeacherName(int predmetId)
+        {
+            // Load the Predmet from the database
+            var predmet = _db.Predmet.FirstOrDefault(p=>p.Id==predmetId);
+            var teacher = _db.Teacher.FirstOrDefault(pl => pl.Id == predmet.TeacherId);
+            return teacher.TeacherName;
+        }
     }
 }
