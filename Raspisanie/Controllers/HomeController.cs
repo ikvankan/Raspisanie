@@ -158,19 +158,19 @@ namespace Raspisanie.Controllers
         public IActionResult SaveSchedules(List<PlacementVM> placementVMs)
         {
             
-            
+            foreach (var placement in placementVMs)
+            {
+                var PlacementsToDelete = _db.Placement.Where(p => p.Date == placement.Placement.Date).ToList();
+                foreach(var pl in PlacementsToDelete)
+                {
+                    _db.Placement.RemoveRange(pl);
+                }
+            }
             foreach (var placementVM in placementVMs)
             {
-                
-                // Если Id Placement равен нулю, это новая запись, иначе - обновление существующей
-                if (placementVM.Placement.Id == 0)
-                {
-                    _db.Placement.Add(placementVM.Placement);
-                }
-                else
-                {
-                    _db.Placement.Update(placementVM.Placement);
-                }
+
+                _db.Placement.Add(placementVM.Placement);
+
             }
             _db.SaveChanges();
             string chatId = "486450728";
@@ -182,9 +182,9 @@ namespace Raspisanie.Controllers
                 var auditoria = _db.Auditoria.FirstOrDefault(p => p.Id == placementVM.Placement.AuditoriaId);
                 message += $"Группа: {group.Name}, Дисциплина: {predmet.PredmetName}, Date: {placementVM.Placement.Date}, Index: {placementVM.Placement.index}, Аудитория: {auditoria.AuditoryName}\n";
             }
-
+ 
             // Отправка сообщения боту
-
+   
             SendMessageToBot(chatId, message);
             return RedirectToAction("Index");
 
@@ -207,6 +207,7 @@ namespace Raspisanie.Controllers
             IEnumerable<Auditoria> AuditoriaList = _db.Auditoria.ToList();
             IEnumerable<Teacher> TeacherList = _db.Teacher.ToList();
             List<PlacementVM> newPlacements = new List<PlacementVM>();
+            
             int numOfPredmet = 0;
             switch (DateToGenerate.DayOfWeek)
             {
