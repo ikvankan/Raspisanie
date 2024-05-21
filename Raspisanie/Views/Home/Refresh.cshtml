@@ -19,7 +19,7 @@
 
     <table style="width:100%">
         <tr>
-            <td colspan="2">День недели @dateObj.DayOfWeek </td>
+            <td colspan="2">День недели  </td>
         </tr>
         <tr>
             <td width="20%">Номер группы, ауд</td>
@@ -36,12 +36,11 @@
 
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
-                        <input asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId">
-                            <option selected>@Model[i].Placement.PredmetId"</option>
-                        </select>
+                        <input asp-for="@Model[i].Placement.index" id="@($"Model_{i}__Placement_index")" name="@($"Model[{i}].Placement.index")" value="@Model[i].Placement.index" />
+
+                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)"></select>
                         <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
+                        <input type="hidden" asp-for="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
                         <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
 
@@ -57,12 +56,11 @@
 
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
-                        <input asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId">
-                            <option selected>@Model[i].Placement.PredmetId"</option>
-                        </select>
+                        <input asp-for="@Model[i].Placement.index" id="@($"Model_{i}__Placement_index")" name="@($"Model[{i}].Placement.index")" value="@Model[i].Placement.index" />
+
+                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)"></select>
                         <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
+                        <input type="hidden" asp-for="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
                         <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
                     </td>
