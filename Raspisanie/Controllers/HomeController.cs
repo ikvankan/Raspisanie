@@ -305,5 +305,58 @@ namespace Raspisanie.Controllers
             var teacher = _db.Teacher.FirstOrDefault(pl => pl.Id == predmet.TeacherId);
             return teacher.TeacherName;
         }
+
+
+
+        public IActionResult ShowAll(DateTime DateToShow)
+        {
+            // Получаем записи и сортируем по GroupId и Index
+            IEnumerable<Placement> Placements = _db.Placement
+                .Where(p => p.Date == DateToShow.ToShortDateString())
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = Placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in Placements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
+            }
+
+            List<PlacementVM> placementList = new List<PlacementVM>();
+
+            foreach (var placement in Placements)
+            {
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+            }
+
+            return View(placementList);
+        }
+
     }
 }
