@@ -37,9 +37,7 @@
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
                         <input asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId">
-                            <option selected>@Model[i].Placement.PredmetId"</option>
-                        </select>
+                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId"></select>
                         <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
@@ -58,9 +56,7 @@
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
                         <input asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId">
-                            <option selected>@Model[i].Placement.PredmetId"</option>
-                        </select>
+                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId"></select>
                         <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
