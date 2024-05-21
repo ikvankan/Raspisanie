@@ -373,7 +373,29 @@ namespace Raspisanie.Controllers
             // Получите обновленные данные и верните их обратно на страницу
             return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
         }
+        [HttpPost]
+        public IActionResult AddPlacement(string GroupId, DateTime DateToShow)
+        {
 
+
+            IEnumerable<Predmet> PredmetList = _db.Predmet.ToList();
+            var Group = _db.Group.FirstOrDefault(p=>p.Name==GroupId);
+            IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == Group.Id).ToList();
+            
+
+            Placement placement = new Placement
+            {
+                GroupId = Group.Id,
+                PredmetId = filteredPredmetList.FirstOrDefault().Id,
+                Date = DateToShow.ToShortDateString(),
+                index = 1,
+                AuditoriaId = Group.AuditoriaId
+            };
+            _db.Placement.Add(placement);
+            _db.SaveChanges();
+            // Получите обновленные данные и верните их обратно на страницу
+            return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
+        }
 
     }
 }

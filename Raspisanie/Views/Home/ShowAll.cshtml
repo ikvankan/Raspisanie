@@ -76,6 +76,12 @@
 </form>
 
 
+<form method="post" action="/Home/AddPlacement">
+    <input name="GroupId" type="text" placeholder="Введите номер группы" />
+    <input name="DateToShow" type="hidden" value="@Model.FirstOrDefault()?.Placement.Date" /> <!-- Скрытое поле для даты -->
+    <button type="submit">Добавить запись</button>
+</form>
+
 <script>
     function updateTeacher(index) {
         var predmetId = document.getElementById("z" + index + "__Placement_PredmetId").value;
