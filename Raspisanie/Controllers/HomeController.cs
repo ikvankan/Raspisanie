@@ -341,7 +341,7 @@ namespace Raspisanie.Controllers
                         Text = i.Name,
                         Value = i.Id.ToString()
                     }),
-                    PredmetSelectList = _db.Predmet.Select(i => new SelectListItem
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
                     {
                         Text = i.PredmetName,
                         Value = i.Id.ToString()
@@ -357,6 +357,23 @@ namespace Raspisanie.Controllers
 
             return View(placementList);
         }
+        // Добавьте этот метод в ваш контроллер
+        // Добавьте этот метод в ваш контроллер
+        [HttpPost]
+        public IActionResult DeletePlacement(string GroupId, int Index, DateTime DateToShow)
+        {
+            // Найдите и удалите запись
+            var placement = _db.Placement.FirstOrDefault(p => p.Group.Name == GroupId && p.index == Index && p.Date == DateToShow.ToShortDateString());
+            if (placement != null)
+            {
+                _db.Placement.Remove(placement);
+                _db.SaveChanges();
+            }
+
+            // Получите обновленные данные и верните их обратно на страницу
+            return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
+        }
+
 
     }
 }

@@ -12,63 +12,70 @@
         border-collapse: collapse;
     }
 </style>
-<form asp-action="SaveSchedules" method="post">
-    <p>Расписание на @Model.FirstOrDefault()?.Placement.Date</p>
-    <table style="width:100%">
-        <tr>
-            <td colspan="2">День недели @dateObj.DayOfWeek </td>
-        </tr>
-        <tr>
-            <td width="20%">Номер группы, ауд</td>
-            <td>Расписание</td>
-        </tr>
 
-        @for (int i = 0; i < Model.Count; i++)
+<p>Расписание на @Model.FirstOrDefault()?.Placement.Date</p>
+<table style="width:100%">
+    <tr>
+        <td colspan="2">День недели @dateObj.DayOfWeek </td>
+    </tr>
+    <tr>
+        <td width="20%">Номер группы, ауд</td>
+        <td>Расписание</td>
+    </tr>
+
+    @for (int i = 0; i < Model.Count; i++)
+    {
+        temp = Model[i].Placement.GroupId;
+        if (old != temp)
         {
-            temp = Model[i].Placement.GroupId;
-            if (old != temp)
-            {
-                <tr>
-                    <td rowspan="@Model[i].NumOfPredmets">Группа номер: @Model[i].Placement.Group.Name<br />ауд. @Model[i].Placement.Group.Auditoria.AuditoryName</td>
+            <tr>
+                <td rowspan="@Model[i].NumOfPredmets">Группа номер: @Model[i].Placement.Group.Name<br />ауд. @Model[i].Placement.Group.Auditoria.AuditoryName</td>
 
-                    <td>
-                        <input type="hidden" asp-for="@Model[i].Placement.Id" />
-                        <input asp-for="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)"></select>
-                        <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        <input type="hidden" asp-for="@Model[i].Placement.Date" />
-                        <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
-                        <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
+                <td>
+                    <input type="hidden" asp-for="@Model[i].Placement.Id" />
+                    <input asp-for="@Model[i].Placement.index" />
+                    <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)"></select>
+                    <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                    <input type="hidden" asp-for="@Model[i].Placement.Date" />
+                    <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
+                    <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
 
-                    </td>
-                </tr>
+                </td>
+            </tr>
 
-                old = temp;
-
-            }
-            else
-            {
-                <tr>
-
-                    <td>
-                        <input type="hidden" asp-for="@Model[i].Placement.Id" />
-                        <input asp-for="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)"></select>
-                        <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        <input type="hidden" asp-for="@Model[i].Placement.Date" />
-                        <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
-                        <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
-                    </td>
-                </tr>
-
-            }
-
+            old = temp;
 
         }
-    </table>
+        else
+        {
+            <tr>
 
-    <input type="submit" value="Сохранить и отправить" />
+                <td>
+                    <input type="hidden" asp-for="@Model[i].Placement.Id" />
+                    <input asp-for="@Model[i].Placement.index" />
+                    <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)"></select>
+                    <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                    <input type="hidden" asp-for="@Model[i].Placement.Date" />
+                    <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
+                    <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
+                </td>
+            </tr>
+
+        }
+
+
+    }
+</table>
+<!-- Добавьте эту форму в ваш HTML -->
+<!-- Добавьте эту форму в ваш HTML -->
+<form method="post" action="/Home/DeletePlacement">
+    <input name="GroupId" type="text" placeholder="Введите номер группы" />
+    <input name="Index" type="text" placeholder="Введите номер предмета" />
+    <input name="DateToShow" type="hidden" value="@Model.FirstOrDefault()?.Placement.Date" /> <!-- Скрытое поле для даты -->
+    <button type="submit">Удалить запись</button>
 </form>
+
+
 <script>
     function updateTeacher(index) {
         var predmetId = document.getElementById("z" + index + "__Placement_PredmetId").value;
