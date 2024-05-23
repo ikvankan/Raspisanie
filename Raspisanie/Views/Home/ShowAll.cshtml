@@ -46,7 +46,7 @@
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
                         <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
-                        <button type="submit" asp-action="DeletePlacement" class="btn btn-danger ">
+                        <button type="submit" asp-route-id="@Model[i].Placement.Id" asp-action="DeletePlacement" class="btn btn-danger ">
                             <i class="fa-solid fa-trash"></i>
                         </button>
 
@@ -68,7 +68,7 @@
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
                         <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
-                        <button type="submit" asp-action="DeletePlacement" class="btn btn-danger ">
+                        <button type="submit" asp-route-id="@Model[i].Placement.Id" asp-action="DeletePlacement" class="btn btn-danger ">
                             <i class="fa-solid fa-trash"></i>
                         </button>
                     </td>

@@ -357,21 +357,99 @@ namespace Raspisanie.Controllers
 
             return View(placementList);
         }
-        // Добавьте этот метод в ваш контроллер
-        // Добавьте этот метод в ваш контроллер
+        
         [HttpPost]
-        public IActionResult DeletePlacement(string GroupId, int Index, DateTime DateToShow)
+        public IActionResult DeletePlacement(/*string GroupId, int Index, DateTime DateToShow*/ List<PlacementVM> placementVMs, int? Id)
         {
-            // Найдите и удалите запись
-            var placement = _db.Placement.FirstOrDefault(p => p.Group.Name == GroupId && p.index == Index && p.Date == DateToShow.ToShortDateString());
-            if (placement != null)
+
+            
+
+
+            
+
+            Placement placementToDelete = _db.Placement.FirstOrDefault(p => p.Id == Id);
+
+
+            // Извлекаем все записи Placement из placementVMs
+            List<Placement> placements = placementVMs.Select(p => p.Placement).ToList();
+
+
+            placements.Remove(placements.FirstOrDefault(p=>p.Id==Id));
+            
+
+
+            IEnumerable<Placement> sortedPlacements = placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in sortedPlacements)
             {
-                _db.Placement.Remove(placement);
-                _db.SaveChanges();
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
             }
 
-            // Получите обновленные данные и верните их обратно на страницу
-            return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
+            List<PlacementVM> placementList = new List<PlacementVM>();
+
+            foreach (var placement in sortedPlacements)
+            {
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+            //// Найдите и удалите запись
+            //var placement = _db.Placement.FirstOrDefault(p => p.Group.Name == GroupId && p.index == Index && p.Date == DateToShow.ToShortDateString());
+            //if (placement != null)
+            //{
+            //    _db.Placement.Remove(placement);
+            //    _db.SaveChanges();
+            //}
+
+            //// Получите обновленные данные и верните их обратно на страницу
+            //return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
+
+            ModelState.Clear();
+            return View("ShowAll", placementList);
         }
         [HttpPost]
         public IActionResult AddPlacement(/*string GroupId, DateTime DateToShow,*/ List<PlacementVM> placementVMs, int? Id)
@@ -379,7 +457,7 @@ namespace Raspisanie.Controllers
             int indexI = 1;
             
             Placement placementToCreate = _db.Placement.FirstOrDefault(p=>p.Id==Id);
-
+            Random random = new Random();
 
             // Извлекаем все записи Placement из placementVMs
             List<Placement> placements = placementVMs.Select(p => p.Placement).ToList();
@@ -390,10 +468,20 @@ namespace Raspisanie.Controllers
                     indexI++;
                 }
             }
-
-
+            IEnumerable<Placement> DBPL = _db.Placement.ToList();
+            int randomID = random.Next();
+            bool flag = true;
+            while (flag)
+            {
+                foreach (var pl in DBPL)
+                {
+                    if(pl.Id == randomID)randomID = random.Next();
+                    else flag=false;
+                }
+            }
             Placement newPlacement = new Placement
             {
+                Id = randomID,
                 GroupId = placementToCreate.GroupId,
                 PredmetId = placementToCreate.PredmetId,
                 Date = placementToCreate.Date,
