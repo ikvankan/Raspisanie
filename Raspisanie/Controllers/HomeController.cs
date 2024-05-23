@@ -374,27 +374,99 @@ namespace Raspisanie.Controllers
             return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
         }
         [HttpPost]
-        public IActionResult AddPlacement(string GroupId, DateTime DateToShow)
+        public IActionResult AddPlacement(/*string GroupId, DateTime DateToShow,*/ List<PlacementVM> placementVMs, int? Id)
         {
+            int indexI = 1;
+            
+            Placement placementToCreate = _db.Placement.FirstOrDefault(p=>p.Id==Id);
 
 
-            IEnumerable<Predmet> PredmetList = _db.Predmet.ToList();
-            var Group = _db.Group.FirstOrDefault(p=>p.Name==GroupId);
-            IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == Group.Id).ToList();
+            // Извлекаем все записи Placement из placementVMs
+            List<Placement> placements = placementVMs.Select(p => p.Placement).ToList();
+            foreach (var pl in placements)
+            {
+                if (pl.GroupId == placementToCreate.GroupId)
+                {
+                    indexI++;
+                }
+            }
+
+
+            Placement newPlacement = new Placement
+            {
+                GroupId = placementToCreate.GroupId,
+                PredmetId = placementToCreate.PredmetId,
+                Date = placementToCreate.Date,
+                index = indexI,
+                AuditoriaId = placementToCreate.AuditoriaId
+            };
+            placements.Add(newPlacement);
+
+
+            IEnumerable<Placement> sortedPlacements = placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
+            }
+
+            List<PlacementVM> placementList = new List<PlacementVM>();
+
+            foreach (var placement in sortedPlacements)
+            {
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+
+            }
+
+            ModelState.Clear();
+            return View("ShowAll", placementList);
+            //IEnumerable<Predmet> PredmetList = _db.Predmet.ToList();
+            //var Group = _db.Group.FirstOrDefault(p=>p.Name==GroupId);
+            //IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == Group.Id).ToList();
             
 
-            Placement placement = new Placement
-            {
-                GroupId = Group.Id,
-                PredmetId = filteredPredmetList.FirstOrDefault().Id,
-                Date = DateToShow.ToShortDateString(),
-                index = 1,
-                AuditoriaId = Group.AuditoriaId
-            };
-            _db.Placement.Add(placement);
-            _db.SaveChanges();
-            // Получите обновленные данные и верните их обратно на страницу
-            return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
+            //Placement placement = new Placement
+            //{
+            //    GroupId = Group.Id,
+            //    PredmetId = filteredPredmetList.FirstOrDefault().Id,
+            //    Date = DateToShow.ToShortDateString(),
+            //    index = 1,
+            //    AuditoriaId = Group.AuditoriaId
+            //};
+            //_db.Placement.Add(placement);
+            //_db.SaveChanges();
+            //// Получите обновленные данные и верните их обратно на страницу
+            //return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
         }
 
 

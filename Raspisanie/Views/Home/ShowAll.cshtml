@@ -32,7 +32,11 @@
             if (old != temp)
             {
                 <tr>
-                    <td rowspan="@Model[i].NumOfPredmets">Группа номер: @Model[i].Placement.Group.Name<br />ауд. @Model[i].Placement.Group.Auditoria.AuditoryName</td>
+                    <td rowspan="@Model[i].NumOfPredmets">Группа номер: @Model[i].Placement.Group.Name<br />ауд. @Model[i].Placement.Group.Auditoria.AuditoryName
+                        <button type="submit" asp-route-id="@Model[i].Placement.Id" asp-action="AddPlacement" class="btn btn-success">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </td>
 
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
@@ -42,6 +46,9 @@
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
                         <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
+                        <button type="submit" asp-action="DeletePlacement" class="btn btn-danger ">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
 
                     </td>
                 </tr>
@@ -61,6 +68,9 @@
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
                         <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
+                        <button type="submit" asp-action="DeletePlacement" class="btn btn-danger ">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
                     </td>
                 </tr>
 
@@ -69,23 +79,29 @@
 
         }
     </table>
-    <input type="submit" value="Refresh" asp-action="Refresh">
-</form>
 
-<!-- Добавьте эту форму в ваш HTML -->
-<!-- Добавьте эту форму в ваш HTML -->
-<form method="post" action="/Home/DeletePlacement">
-    <input name="GroupId" type="text" placeholder="Введите номер группы" />
+    <input type="submit" value="Refresh" asp-action="Refresh">
+
+    @*<input name="GroupId" type="text" placeholder="Введите номер группы" />
     <input name="Index" type="text" placeholder="Введите номер предмета" />
     <input name="DateToShow" type="hidden" value="@Model.FirstOrDefault()?.Placement.Date" /> <!-- Скрытое поле для даты -->
-    <button type="submit">Удалить запись</button>
+    <input type="submit" value="Delete" asp-action="DeletePlacement">
+    <input name="DateToShow" type="hidden" value="@Model.FirstOrDefault()?.Placement.Date" /> <!-- Скрытое поле для даты -->
+    <input type="submit" value="Add" asp-action="AddPlacement">*@
+
+   
+
+    <input type="submit" value="SaveAll" asp-action="SaveAll">
+</form>
+
+
+<form method="post" action="/Home/DeletePlacement">
+    
 </form>
 
 
 <form method="post" action="/Home/AddPlacement">
-    <input name="GroupId" type="text" placeholder="Введите номер группы" />
-    <input name="DateToShow" type="hidden" value="@Model.FirstOrDefault()?.Placement.Date" /> <!-- Скрытое поле для даты -->
-    <button type="submit">Добавить запись</button>
+    
 </form>
 
 
