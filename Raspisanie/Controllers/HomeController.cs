@@ -463,11 +463,13 @@ namespace Raspisanie.Controllers
         {
             int indexI = 1;
             
-            Placement placementToCreate = _db.Placement.FirstOrDefault(p=>p.Id==Id);
+            
             Random random = new Random();
 
             // Извлекаем все записи Placement из placementVMs
             List<Placement> placements = placementVMs.Select(p => p.Placement).ToList();
+            Placement placementToCreate = placements.FirstOrDefault(p => p.Id == Id);
+
             foreach (var pl in placements)
             {
                 if (pl.GroupId == placementToCreate.GroupId)
