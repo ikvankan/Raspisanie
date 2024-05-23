@@ -157,6 +157,13 @@ namespace Raspisanie.Controllers
         [HttpPost]
         public IActionResult SaveSchedules(List<PlacementVM> placementVMs)
         {
+            foreach(var PLVM in placementVMs)
+            {
+                var obj = _db.Placement.Find(PLVM.Placement.Id);
+                if (obj == null) 
+                { PLVM.Placement.Id = 0; }
+                
+            }
             
             foreach (var placement in placementVMs)
             {
@@ -168,7 +175,7 @@ namespace Raspisanie.Controllers
             }
             foreach (var placementVM in placementVMs)
             {
-
+                
                 _db.Placement.Add(placementVM.Placement);
 
             }
