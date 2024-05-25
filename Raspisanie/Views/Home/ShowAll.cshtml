@@ -19,11 +19,12 @@
 
     <table style="width:100%">
         <tr>
-            <td colspan="2">День недели @dateObj.DayOfWeek </td>
+            <td colspan="5">День недели @dateObj.DayOfWeek </td>
         </tr>
         <tr>
             <td width="20%">Номер группы, ауд</td>
-            <td>Расписание</td>
+            <td colspan="4">Расписание</td>
+
         </tr>
 
         @for (int i = 0; i < Model.Count; i++)
@@ -32,7 +33,8 @@
             if (old != temp)
             {
                 <tr>
-                    <td rowspan="@Model[i].NumOfPredmets">Группа номер: @Model[i].Placement.Group.Name<br />ауд. @Model[i].Placement.Group.Auditoria.AuditoryName
+                    <td rowspan="@Model[i].NumOfPredmets">
+                        Группа номер: @Model[i].Placement.Group.Name<br />ауд. @Model[i].Placement.Group.Auditoria.AuditoryName<br /> Куратор @Model[i].Placement.Group.Teacher.TeacherName
                         <button type="submit" asp-route-id="@Model[i].Placement.Id" asp-action="AddPlacement" class="btn btn-success">
                             <i class="fa-solid fa-plus"></i>
                         </button>
@@ -40,16 +42,47 @@
 
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
-                        <input asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId"></select>
-                        <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                        <input type="hidden" asp-for="@Model[i].Placement.GroupId" />
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
-                        <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
-                        <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
+                        <input style="width:30px" asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
+                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
+                        @if (!Model[i].Placement.Predmet.Laboratory)
+                        {
+                            <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId" />
+                        }
+                        else
+                        {
+                            <select asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                        }
+
+
+
+
+
+
+                    </td>
+                    <td>
+                        <select asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                        <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                    </td>
+                    <td>
+                        @if (!Model[i].Placement.Predmet.Laboratory)
+                        {
+                            <input type="hidden" asp-for="@Model[i].Placement.SecondTeacherId" value="@Model[i].Placement.SecondTeacherId" />
+                            <input type="hidden" asp-for="@Model[i].Placement.SecondAuditoriaId" value="@Model[i].Placement.SecondAuditoriaId" />
+                        }
+                        else
+                        {
+                            <select asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            <select asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                        }
+
+
+                    </td>
+                    <td>
                         <button type="submit" asp-route-id="@Model[i].Placement.Id" asp-action="DeletePlacement" class="btn btn-danger ">
                             <i class="fa-solid fa-trash"></i>
                         </button>
-
                     </td>
                 </tr>
 
@@ -62,12 +95,43 @@
 
                     <td>
                         <input type="hidden" asp-for="@Model[i].Placement.Id" />
-                        <input asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" onchange="updateTeacher(@i)" value="@Model[i].Placement.PredmetId"></select>
-                        <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                        <input type="hidden" asp-for="@Model[i].Placement.GroupId" />
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
-                        <select asp-for="@Model[i].Placement.GroupId" asp-items="@Model[i].GroupSelectList"></select>
-                        <span id="teacher-@i">@Model[i].Placement.Predmet.Teacher.TeacherName</span>
+                        <input style="width:30px" asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
+                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
+                        @if (!Model[i].Placement.Predmet.Laboratory)
+                        {
+                            <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId"></input>
+                        }
+                        else
+                        {
+                            <select asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                        }
+
+
+
+
+
+                    </td>
+                    <td>
+                        <select asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                        <select asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                    </td>
+                    <td>
+
+                        @if (!Model[i].Placement.Predmet.Laboratory)
+                        {
+                            <input type="hidden" asp-for="@Model[i].Placement.SecondTeacherId" value="@Model[i].Placement.SecondTeacherId" />
+                            <input type="hidden" asp-for="@Model[i].Placement.SecondAuditoriaId" value="@Model[i].Placement.SecondAuditoriaId" />
+                        }
+                        else
+                        {
+                            <select asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            <select asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                        }
+
+                    </td>
+                    <td>
                         <button type="submit" asp-route-id="@Model[i].Placement.Id" asp-action="DeletePlacement" class="btn btn-danger ">
                             <i class="fa-solid fa-trash"></i>
                         </button>
@@ -89,20 +153,13 @@
     <input name="DateToShow" type="hidden" value="@Model.FirstOrDefault()?.Placement.Date" /> <!-- Скрытое поле для даты -->
     <input type="submit" value="Add" asp-action="AddPlacement">*@
 
-   
+
 
     <input type="submit" value="SaveAll" asp-action="SaveSchedules">
 </form>
 
 
-<form method="post" action="/Home/DeletePlacement">
-    
-</form>
 
-
-<form method="post" action="/Home/AddPlacement">
-    
-</form>
 
 
 
@@ -117,5 +174,17 @@
                 document.getElementById("teacher-" + index).innerText = result;
             }
         });
+
+
+        $.ajax({
+            url: "/Home/GetSecondTeacherName",
+            type: "GET",
+            data: { predmetId: predmetId },
+            success: function (result) {
+                document.getElementById("secondteacher-" + index).innerText = result;
+            }
+        });
+
+
     }
 </script>

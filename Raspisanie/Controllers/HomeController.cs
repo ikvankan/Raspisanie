@@ -247,8 +247,9 @@ namespace Raspisanie.Controllers
                 for (int i = 0; i < numOfPredmet; i++)
                 {
                     Random random = new Random();
-                    int randomNumber = i + 1;
+                    int indexNumber = i + 1;
                     // Выбор случайного предмета
+
                     int randomIndex = random.Next(filteredPredmetList.Count()) + 1;
 
                     int[] Ids = new int[filteredPredmetList.Count()];
@@ -259,21 +260,65 @@ namespace Raspisanie.Controllers
                     {
                         Ids[id_index] = predmet.Id;
                         Auds[id_index] = predmet.Group.AuditoriaId;
+                        
                         id_index++;
                     }
 
                     int randomnum = random.Next(0, Ids.Length);
                     int subjectId = Ids[randomnum];
-                    int auditoriaId = Auds[randomnum];
+                    
+
+
+                    var generatedPredmet = _db.Predmet.FirstOrDefault(u => u.Id == subjectId);
+
+
+                    int firstAud = generatedPredmet.Group.AuditoriaId;
+                    int secondAud = firstAud;
+
+                    if (generatedPredmet.Laboratory == true)
+                    {
+                        firstAud = generatedPredmet.Teacher.AuditoryId;
+                        secondAud = generatedPredmet.SecondTeacher.AuditoryId;
+                    }
+
+                    int firstTeacher = generatedPredmet.TeacherId;
+                    int secondTeacher = generatedPredmet.SecondTeacherId;
+
+
+
+
+
+
+                    IEnumerable<Placement> DBPL = _db.Placement.ToList();
+                    int randomID = random.Next();
+                    bool flag = true;
+                    while (flag)
+                    {
+                        if (DBPL.Count() == 0)
+                        {
+                            flag = false;
+                        }
+                        foreach (var pl in DBPL)
+                        {
+                            if (pl.Id == randomID) randomID = random.Next();
+                            else flag = false;
+                        }
+                    }
+
 
                     // Создание нового объекта Placement и добавление его в базу данных
                     Placement placement = new Placement
                     {
+                        Id=randomID,
                         GroupId = group.Id,
-                        PredmetId = subjectId,
+                        PredmetId = generatedPredmet.Id,
+                        SecondPredmetId = generatedPredmet.Id,
                         Date = DateToGenerate.ToShortDateString().ToString(),
-                        index = randomNumber,
-                        AuditoriaId = auditoriaId
+                        index = indexNumber,
+                        AuditoriaId = firstAud,
+                        SecondAuditoriaId = secondAud,
+                        TeacherId = firstTeacher,
+                        SecondTeacherId = secondTeacher,
                     };
                     _db.Placement.Add(placement);
                     PlacementVM placementVM = new PlacementVM()
@@ -290,11 +335,21 @@ namespace Raspisanie.Controllers
                             Text = i.PredmetName,
                             Value = i.Id.ToString()
                         }),
+                        SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p=>p.Laboratory==true).Select(i => new SelectListItem
+                        {
+                            Text = i.PredmetName,
+                            Value = i.Id.ToString()
+                        }),
                         AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                         {
                             Text = i.AuditoryName,
                             Value = i.Id.ToString()
-                        })
+                        }),
+                        TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                        {
+                            Text = i.TeacherName,
+                            Value = i.Id.ToString()
+                        }),
                     };
 
                     // Добавление нового ViewModel в список
@@ -314,6 +369,14 @@ namespace Raspisanie.Controllers
         }
 
 
+        public string GetSecondTeacherName(int predmetId)
+        {
+            // Load the Predmet from the database
+            var predmet = _db.Predmet.FirstOrDefault(p => p.Id == predmetId);
+            var teacher = _db.Teacher.FirstOrDefault(pl => pl.Id == predmet.SecondTeacherId);
+            return teacher.TeacherName;
+        }
+
 
         public IActionResult ShowAll(DateTime DateToShow)
         {
@@ -331,8 +394,12 @@ namespace Raspisanie.Controllers
             {
                 obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
                 obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
                 obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
-                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u=>u.Id==obj.Group.AuditoriaId);
             }
 
             List<PlacementVM> placementList = new List<PlacementVM>();
@@ -353,9 +420,19 @@ namespace Raspisanie.Controllers
                         Text = i.PredmetName,
                         Value = i.Id.ToString()
                     }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
                     AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                     {
                         Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
                         Value = i.Id.ToString()
                     }),
                 };
@@ -396,8 +473,12 @@ namespace Raspisanie.Controllers
             {
                 obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
                 obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
                 obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
-                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
             }
 
             List<PlacementVM> placementList = new List<PlacementVM>();
@@ -420,9 +501,19 @@ namespace Raspisanie.Controllers
                         Value = i.Id.ToString(),
 
                     }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
                     AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                     {
                         Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
                         Value = i.Id.ToString()
                     }),
                 };
@@ -482,6 +573,10 @@ namespace Raspisanie.Controllers
             bool flag = true;
             while (flag)
             {
+                if (DBPL.Count() == 0)
+                {
+                    flag = false;
+                }
                 foreach (var pl in DBPL)
                 {
                     if(pl.Id == randomID)randomID = random.Next();
@@ -493,9 +588,23 @@ namespace Raspisanie.Controllers
                 Id = randomID,
                 GroupId = placementToCreate.GroupId,
                 PredmetId = placementToCreate.PredmetId,
+                SecondPredmetId = placementToCreate.SecondPredmetId,
                 Date = placementToCreate.Date,
                 index = indexI,
-                AuditoriaId = placementToCreate.AuditoriaId
+                AuditoriaId = placementToCreate.AuditoriaId,
+                SecondAuditoriaId = placementToCreate.SecondAuditoriaId,
+                TeacherId = placementToCreate.TeacherId,
+                SecondTeacherId = placementToCreate.SecondTeacherId,
+
+
+
+
+                //Id = randomID,
+                //GroupId = placementToCreate.GroupId,
+                //PredmetId = placementToCreate.PredmetId,
+                //Date = placementToCreate.Date,
+                //index = indexI,
+                //AuditoriaId = placementToCreate.AuditoriaId
             };
             placements.Add(newPlacement);
 
@@ -511,14 +620,20 @@ namespace Raspisanie.Controllers
             {
                 obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
                 obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
                 obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
-                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
             }
 
             List<PlacementVM> placementList = new List<PlacementVM>();
 
             foreach (var placement in sortedPlacements)
             {
+                
+
                 placement.PredmetId = placement.PredmetId;
                 PlacementVM placementVM = new PlacementVM()
                 {
@@ -535,9 +650,19 @@ namespace Raspisanie.Controllers
                         Value = i.Id.ToString(),
 
                     }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
                     AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                     {
                         Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
                         Value = i.Id.ToString()
                     }),
                 };
@@ -589,14 +714,48 @@ namespace Raspisanie.Controllers
             {
                 obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
                 obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
                 obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
-                obj.Predmet.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Predmet.TeacherId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
             }
 
             List<PlacementVM> placementList = new List<PlacementVM>();
 
             foreach (var placement in sortedPlacements)
             {
+                var firstPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.PredmetId);
+                var secondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.SecondPredmetId);
+
+                if (!firstPredmet.Laboratory)
+                {
+                    secondPredmet = firstPredmet;
+                }
+                if(firstPredmet.Laboratory && !secondPredmet.Laboratory)
+                {
+                    secondPredmet = firstPredmet;
+                }
+
+                var findedFirstTeacher = _db.Teacher.FirstOrDefault(u => u.Id == firstPredmet.TeacherId);
+                var findedSecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == secondPredmet.SecondTeacherId);
+
+                
+                var findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u=>u.Id==firstPredmet.Group.AuditoriaId);
+                var findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u=>u.Id==secondPredmet.Group.AuditoriaId);
+                if (firstPredmet.Laboratory)
+                {
+                    findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedFirstTeacher.AuditoryId);
+                    findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedSecondTeacher.AuditoryId);
+                }
+                placement.TeacherId = findedFirstTeacher.Id;
+                placement.SecondTeacherId = findedSecondTeacher.Id;
+                placement.AuditoriaId = findedFirstAuditoria.Id;
+                placement.SecondAuditoriaId = findedSecondAuditoria.Id;
+                placement.PredmetId = firstPredmet.Id;
+                placement.SecondPredmetId  = secondPredmet.Id;
+
                 placement.PredmetId = placement.PredmetId;
                 PlacementVM placementVM = new PlacementVM()
                 {
@@ -613,9 +772,19 @@ namespace Raspisanie.Controllers
                         Value = i.Id.ToString(),
                         
                     }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
                     AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                     {
                         Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
                         Value = i.Id.ToString()
                     }),
                 };
@@ -633,3 +802,5 @@ namespace Raspisanie.Controllers
 
     }
 }
+
+

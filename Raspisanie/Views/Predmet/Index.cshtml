@@ -25,10 +25,16 @@
                         Преподователь
                     </th>
                     <th>
+                        Преподователь 2
+                    </th>
+                    <th>
                         Часы
                     </th>
                     <th>
                         группа
+                    </th>
+                    <th>
+                        Практика
                     </th>
                     <th></th>
                 </tr>
@@ -38,10 +44,12 @@
                 {
 
                     <tr>
-                        <td width="30%">@obj.PredmetName</td>
-                        <td width="30%">@obj.Teacher.TeacherName</td>
-                        <td width="10%">@obj.Hours</td>
+                        <td width="20%">@obj.PredmetName</td>
+                        <td width="20%">@obj.Teacher.TeacherName</td>
+                        <td width="20%">@obj.SecondTeacher.TeacherName</td>
+                        <td width="5%">@obj.Hours</td>
                         <td width="10%">@obj.Group.Name</td>
+                        <td width="5%">@obj.Laboratory</td>
                         <td class="text-center">
                             <div class="w-75 btn-group" role="group">
                                 <a asp-controller="Predmet" asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary ">

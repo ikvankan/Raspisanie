@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Raspisanie.Data;
 
@@ -10,9 +11,10 @@ using Raspisanie.Data;
 namespace Raspisanie.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240525004629_NewFieldsToPlacement")]
+    partial class NewFieldsToPlacement
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,7 +43,7 @@ namespace Raspisanie.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Auditoria", (string)null);
+                    b.ToTable("Auditoria");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Group", b =>
@@ -75,7 +77,7 @@ namespace Raspisanie.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Group", (string)null);
+                    b.ToTable("Group");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Placement", b =>
@@ -130,7 +132,7 @@ namespace Raspisanie.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Placement", (string)null);
+                    b.ToTable("Placement");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Predmet", b =>
@@ -168,7 +170,7 @@ namespace Raspisanie.Migrations
 
                     b.HasIndex("TeacherId");
 
-                    b.ToTable("Predmet", (string)null);
+                    b.ToTable("Predmet");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Teacher", b =>
@@ -190,7 +192,7 @@ namespace Raspisanie.Migrations
 
                     b.HasIndex("AuditoryId");
 
-                    b.ToTable("Teacher", (string)null);
+                    b.ToTable("Teacher");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Group", b =>

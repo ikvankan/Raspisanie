@@ -6,7 +6,7 @@
     <div class="border p-3">
 
         <div class="mb-3 row">
-            <h2 class="text-info pl-3"> Удалить преподователя</h2>
+            <h2 class="text-info pl-3"> Удалить дисциплину</h2>
         </div>
         <div class="row">
             <div class="col-8">
@@ -31,6 +31,20 @@
                     </div>
 
                 </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="SecondTeacherId"></label>
+                    </div>
+                    <div class="col-8">
+                        <input disabled asp-for="SecondTeacher.TeacherName" class="form-control" />
+
+                    </div>
+
+                </div>
+
+
+
                 <div class="mb-3 row">
                     <div class="col-4">
                         <label asp-for="Hours"></label>
@@ -47,6 +61,19 @@
                     </div>
                     <div class="col-8">
                         <input disabled asp-for="Group.Name" class="form-control" />
+
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Laboratory"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Laboratory" disabled class="form-check-input" />
 
                     </div>
 

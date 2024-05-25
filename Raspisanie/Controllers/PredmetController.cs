@@ -19,6 +19,7 @@ namespace Raspisanie.Controllers
             IEnumerable<Predmet> objList = _db.Predmet;
             foreach (var obj in objList)
             {
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
                 obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
                 obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
 
@@ -91,7 +92,7 @@ namespace Raspisanie.Controllers
         public IActionResult Delete(int? Id)
         {
             if (Id == null) { return NotFound(); }
-            Predmet predmet = _db.Predmet.Include(u => u.Teacher).Include(u => u.Group).FirstOrDefault(u => u.Id == Id);
+            Predmet predmet = _db.Predmet.Include(u => u.Teacher).Include(u => u.Group).Include(u=>u.SecondTeacher).FirstOrDefault(u => u.Id == Id);
             //var obj = _db.Teacher.Find(Id);
             if (predmet == null) { return NotFound(); }
             return View(predmet);
@@ -105,10 +106,10 @@ namespace Raspisanie.Controllers
             if (obj == null) { return NotFound(); }
 
             // Находим связанные записи в таблице Placement
-            var relatedPlacements = _db.Placement.Where(p => p.PredmetId == obj.Id).ToList();
+            var relatedPlacements1 = _db.Placement.Where(p => p.PredmetId == obj.Id).ToList();var relatedPlacements2 = _db.Placement.Where(p => p.SecondPredmetId == obj.Id).ToList();
 
             // Удаляем связанные записи из таблицы Placement
-            _db.Placement.RemoveRange(relatedPlacements);
+            _db.Placement.RemoveRange(relatedPlacements1);_db.Placement.RemoveRange(relatedPlacements2);
 
             // Удаляем запись из таблицы Predmet
             _db.Predmet.Remove(obj);

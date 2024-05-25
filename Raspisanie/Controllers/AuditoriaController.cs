@@ -73,7 +73,8 @@ namespace Raspisanie.Controllers
             // Находим связанные записи в таблице Group и Teacher и Placement
             var relatedGroups = _db.Group.Where(p => p.AuditoriaId == obj.Id).ToList();
             var relatedTeachers = _db.Teacher.Where(p => p.AuditoryId == obj.Id).ToList();
-            var relatedPlacements = _db.Placement.Where(p => p.AuditoriaId == obj.Id).ToList();
+            var relatedPlacements1 = _db.Placement.Where(p => p.AuditoriaId == obj.Id).ToList();
+            var relatedPlacements2 = _db.Placement.Where(p => p.SecondAuditoriaId == obj.Id).ToList();
             foreach (var group in relatedGroups)
             {
                 var relatedPlacementsInGroups = _db.Placement.Where(pl=>pl.GroupId == group.Id).ToList();
@@ -105,7 +106,7 @@ namespace Raspisanie.Controllers
                 // Удаляем связанные записи из таблицы Teacher
                 _db.Teacher.Remove(teacher);
             }
-            _db.Placement.RemoveRange(relatedPlacements);
+            _db.Placement.RemoveRange(relatedPlacements1);_db.Placement.RemoveRange(relatedPlacements2);
 
             // Удаляем запись из таблицы Auditoria
             _db.Auditoria.Remove(obj);

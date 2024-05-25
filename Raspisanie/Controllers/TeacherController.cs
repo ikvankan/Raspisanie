@@ -99,8 +99,47 @@ namespace Raspisanie.Controllers
             var obj = _db.Teacher.Find(Id);
             if (obj == null) { return NotFound(); }
 
-            var relatedPredmets = _db.Predmet.Where(p=>p.TeacherId==obj.Id).ToList();
-            _db.Predmet.RemoveRange(relatedPredmets);
+            var relatedPredmets1 = _db.Predmet.Where(p=>p.TeacherId==obj.Id).ToList();
+            var relatedPredmets2 = _db.Predmet.Where(p => p.SecondTeacherId == obj.Id).ToList();
+            foreach (var predmet in relatedPredmets1)
+            {
+                var relatedPlacement_Predmets = _db.Placement.Where(pl=>pl.PredmetId==predmet.Id).ToList();
+                _db.Placement.RemoveRange(relatedPlacement_Predmets);
+            }
+            foreach (var predmet in relatedPredmets2)
+            {
+                var relatedPlacement_Predmets = _db.Placement.Where(pl => pl.PredmetId == predmet.Id).ToList();
+                _db.Placement.RemoveRange(relatedPlacement_Predmets);
+            }
+            _db.Predmet.RemoveRange(relatedPredmets1);_db.Predmet.RemoveRange(relatedPredmets2);
+
+            var relatedGroups = _db.Group.Where(p => p.TeacherId == obj.Id).ToList();
+
+
+
+
+
+
+
+
+
+            foreach (var group in relatedGroups)
+            {
+                var relatedPlacements_Groups = _db.Placement.Where(pl => pl.GroupId == group.Id).ToList();
+                var relatedPredmets_Groups = _db.Predmet.Where(pl => pl.GroupId == group.Id).ToList();
+                // Удаляем связанные c таблицей Predmet записи из таблицы Placement
+                foreach (var predmet in relatedPredmets_Groups)
+                {
+                    var relatedPlacementsInPredmet = _db.Placement.Where(pll => pll.PredmetId == predmet.Id).ToList();
+                    _db.Placement.RemoveRange(relatedPlacementsInPredmet);
+                }
+                _db.Predmet.RemoveRange(relatedPredmets_Groups);
+                _db.Placement.RemoveRange(relatedPlacements_Groups);
+                // Удаляем связанные записи из таблицы Group
+                _db.Group.Remove(group);
+            }
+
+
 
 
             _db.Teacher.Remove(obj);

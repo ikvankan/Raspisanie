@@ -30,6 +30,9 @@
                     <th>
                         Аудитория
                     </th>
+                    <th>
+                        Куратор
+                    </th>
                     <th></th>
                 </tr>
             </thead>
@@ -39,9 +42,10 @@
 
                     <tr>
                         <td width="20%">@obj.Name</td>
-                        <td width="20%">@obj.Course</td>
+                        <td width="10%">@obj.Course</td>
                         <td width="20%">@obj.Specialnost</td>
-                        <td width="20%">@obj.Auditoria.AuditoryName</td>
+                        <td width="10%">@obj.Auditoria.AuditoryName</td>
+                        <td width="20%">@obj.Teacher.TeacherName</td>
                         <td class="text-center">
                             <div class="w-75 btn-group" role="group">
                                 <a asp-controller="Group" asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary ">

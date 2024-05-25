@@ -6,5 +6,6 @@ namespace Raspisanie.Models.ViewModels
     {
         public Group Group { get; set; }
         public IEnumerable<SelectListItem> AuditoriaSelectList { get; set; }
+        public IEnumerable<SelectListItem> TeacherSelectList { get; set; }
     }
 }

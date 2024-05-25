@@ -11,9 +11,13 @@ namespace Raspisanie.Models
         public int TeacherId { get; set; }
         [ForeignKey("TeacherId")]
         public virtual Teacher Teacher { get; set; }
+        public int SecondTeacherId { get; set; }
+        [ForeignKey("SecondTeacherId")]
+        public virtual Teacher SecondTeacher { get; set; }
         public int Hours { get; set; }
         public int GroupId { get; set; }
         [ForeignKey("GroupId")]
         public virtual Group Group { get; set; }
+        public bool Laboratory { get; set; }
     }
 }

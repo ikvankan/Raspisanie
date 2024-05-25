@@ -51,6 +51,24 @@
                     </div>
 
                 </div>
+
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.SecondPredmetId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.SecondPredmetId" asp-items="@Model.PredmetSelectList" class="form-select">
+                            <option disabled selected>--Выберите предмет--</option>
+                        </select>
+                        <span asp-validation-for="Placement.SecondPredmetId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
+
+
                 <div class="mb-3 row">
                     <div class="col-4">
                         <label asp-for="Placement.index"></label>
@@ -70,6 +88,49 @@
                             <option disabled selected>--Выберите аудиторию--</option>
                         </select>
                         <span asp-validation-for="Placement.AuditoriaId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.SecondAuditoriaId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.SecondAuditoriaId" asp-items="@Model.AuditoriaSelectList" class="form-select">
+                            <option disabled selected>--Выберите аудиторию--</option>
+                        </select>
+                        <span asp-validation-for="Placement.SecondAuditoriaId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.TeacherId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.TeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
+                            <option disabled selected>--Выберите аудиторию--</option>
+                        </select>
+                        <span asp-validation-for="Placement.TeacherId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Placement.SecondTeacherId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Placement.SecondTeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
+                            <option disabled selected>--Выберите аудиторию--</option>
+                        </select>
+                        <span asp-validation-for="Placement.SecondTeacherId" class="text-danger"></span>
                     </div>
 
                 </div>

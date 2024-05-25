@@ -20,6 +20,7 @@ namespace Raspisanie.Controllers
             foreach (var obj in objList)
             {
                 obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
 
             }
             return View(objList);
@@ -42,6 +43,11 @@ namespace Raspisanie.Controllers
                 AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                 {
                     Text = i.AuditoryName,
+                    Value = i.Id.ToString()
+                }),
+                TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                {
+                    Text = i.TeacherName,
                     Value = i.Id.ToString()
                 }),
             };

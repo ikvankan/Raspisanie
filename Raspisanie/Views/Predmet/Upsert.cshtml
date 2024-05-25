@@ -5,7 +5,7 @@
 <form method="post" asp-action="Upsert" enctype="multipart/form-data">
     @if (Model.Predmet.Id != 0)
     {
-        title = "Изменение товара";
+        title = "Изменение Дисциплины";
         <input asp-for="Predmet.Id" hidden />
     }
 
@@ -32,12 +32,28 @@
                     </div>
                     <div class="col-8">
                         <select asp-for="Predmet.TeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
-                            <option disabled selected>--Выберите тип товара--</option>
+                            <option disabled selected>--Выберите преподователя--</option>
                         </select>
                         <span asp-validation-for="Predmet.TeacherId" class="text-danger"></span>
                     </div>
 
                 </div>
+
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.SecondTeacherId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Predmet.SecondTeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
+                            <option disabled selected>--Выберите преподователя--</option>
+                        </select>
+                        <span asp-validation-for="Predmet.SecondTeacherId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
                 <div class="mb-3 row">
                     <div class="col-4">
                         <label asp-for="Predmet.Hours"></label>
@@ -60,6 +76,19 @@
                     </div>
 
                 </div>
+
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.Laboratory"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Predmet.Laboratory" class="form-check-input" />
+                        <span asp-validation-for="Predmet.Laboratory" class="text-danger"></span>
+                    </div>
+
+                </div>
+
 
                 <div class="mb-3 row">
                     <div class="col-8 offset-4 row">

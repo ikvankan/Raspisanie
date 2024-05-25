@@ -21,8 +21,11 @@ namespace Raspisanie.Controllers
             {
                 obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
                 obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
                 obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
-
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
             }
             return View(objList);
         }
@@ -54,6 +57,11 @@ namespace Raspisanie.Controllers
                 AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
                 {
                     Text = i.AuditoryName,
+                    Value = i.Id.ToString()
+                }),
+                TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                {
+                    Text = i.TeacherName,
                     Value = i.Id.ToString()
                 }),
             };
@@ -97,7 +105,7 @@ namespace Raspisanie.Controllers
         public IActionResult Delete(int? Id)
         {
             if (Id == null) { return NotFound(); }
-            Placement placement = _db.Placement.Include(u => u.Group).Include(u => u.Predmet).Include(u => u.Auditoria).FirstOrDefault(u => u.Id == Id);
+            Placement placement = _db.Placement.Include(u => u.Group).Include(u => u.Predmet).Include(u => u.SecondPredmet).Include(u => u.Auditoria).Include(u=>u.SecondAuditoria).Include(u => u.Teacher).Include(u => u.SecondTeacher).FirstOrDefault(u => u.Id == Id);
             //var obj = _db.Teacher.Find(Id);
             if (placement == null) { return NotFound(); }
             return View(placement);

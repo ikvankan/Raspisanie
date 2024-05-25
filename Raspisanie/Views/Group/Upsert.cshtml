@@ -60,6 +60,22 @@
                 </div>
 
                 <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Group.TeacherId"></label>
+                    </div>
+                    <div class="col-8">
+                        <select asp-for="Group.TeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
+                            <option disabled selected>--Выберите куратора--</option>
+                        </select>
+                        <span asp-validation-for="Group.TeacherId" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
+
+
+                <div class="mb-3 row">
                     <div class="col-8 offset-4 row">
 
                         <div class="col">
