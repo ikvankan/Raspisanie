@@ -36,16 +36,39 @@ namespace Raspisanie.Controllers
             //});
             //ViewBag.ItemTypeDropDown = ItemTypeDropDown;
             //Item item = new Item();
-
-            TeacherVM teacherVM = new TeacherVM()
+            TeacherVM teacherVM;
+            var teacherToEdut = _db.Teacher.Find(Id);
+            if (Id!=null)
             {
-                Teacher = new Teacher(),
-                AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                teacherVM = new TeacherVM()
                 {
-                    Text = i.AuditoryName,
-                    Value = i.Id.ToString()
-                }),
-            };
+                    Teacher = new Teacher(),
+                    AuditoriaSelectList = _db.Auditoria
+                    .Where(a => a.AuditoryName.ToLower() == "Нету" ||a.Id ==teacherToEdut.AuditoryId || !_db.Teacher.Any(t => t.AuditoryId == a.Id)) // Добавляем условие для аудитории "Нету"
+                    .Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+            }
+            else
+            {
+                teacherVM = new TeacherVM()
+                {
+                    Teacher = new Teacher(),
+                    AuditoriaSelectList = _db.Auditoria
+                    .Where(a => a.AuditoryName.ToLower() == "Нету" || !_db.Teacher.Any(t => t.AuditoryId == a.Id)) // Добавляем условие для аудитории "Нету"
+                    .Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+            }
+            
+
+
             if (Id == null)
             {
                 //Создаем новый

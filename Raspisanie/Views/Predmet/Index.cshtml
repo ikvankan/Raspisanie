@@ -9,13 +9,14 @@
             <a asp-controller="Predmet" asp-action="Upsert" class="btn btn-primary">
                 <i class="fa-sharp fa-solid fa-plus fa-beat"></i> &nbsp; Создать новый
             </a>
-
         </div>
     </div>
+    <br />
+    <input type="text" id="searchInput" onkeyup="myFunction()" placeholder="Поиск..">
     <br /><br />
     @if (Model.Count() > 0)
     {
-        <table class=" table table-bordered table-striped" style="width:100%">
+        <table id="myTable" class=" table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>
@@ -31,10 +32,12 @@
                         Часы
                     </th>
                     <th>
-                        группа
+                        Группа
+                        <button id="sortBtnGroup" onclick="sortTableGroup()">▲</button>
                     </th>
                     <th>
                         Практика
+                        <button id="sortBtn" onclick="sortTable()">▲</button>
                     </th>
                     <th></th>
                 </tr>
@@ -70,3 +73,101 @@
         <p>Нет Дисциплин</p>
     }
 </div>
+
+<script>
+    function myFunction() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 0; i < tr.length; i++) {
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+    }
+
+
+
+    var sortDirection = 1;
+
+    function sortTable() {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[5];
+                y = rows[i + 1].getElementsByTagName("TD")[5];
+                if (sortDirection == 1) {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+        sortDirection = -sortDirection;
+        document.getElementById("sortBtn").textContent = sortDirection == 1 ? '▲' : '▼';
+    }
+
+
+
+
+    var sortDirectionGroup = 1;
+
+    function sortTableGroup() {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[4]; // Измените индекс на соответствующий столбцу "Группа"
+                y = rows[i + 1].getElementsByTagName("TD")[4]; // Измените индекс на соответствующий столбцу "Группа"
+                if (sortDirectionGroup == 1) {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+        sortDirectionGroup = -sortDirectionGroup;
+        document.getElementById("sortBtnGroup").textContent = sortDirectionGroup == 1 ? '▲' : '▼';
+    }
+
+</script>

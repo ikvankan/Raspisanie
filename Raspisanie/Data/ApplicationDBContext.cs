@@ -14,5 +14,6 @@ namespace Raspisanie.Data
         public DbSet<Predmet> Predmet { get; set; }
         public DbSet<Group> Group { get; set; }
         public DbSet<Placement> Placement { get; set; }
+        public DbSet<TGUser> TGUser { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Raspisanie.Data;
 
@@ -11,9 +12,10 @@ using Raspisanie.Data;
 namespace Raspisanie.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240526175817_AddTelegramBotFieldsToTeacherTable")]
+    partial class AddTelegramBotFieldsToTeacherTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -200,7 +202,7 @@ namespace Raspisanie.Migrations
                     b.ToTable("Teacher");
                 });
 
-            modelBuilder.Entity("Raspisanie.Models.TGUser", b =>
+            modelBuilder.Entity("Raspisanie.Models.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -217,7 +219,7 @@ namespace Raspisanie.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("TGUser");
+                    b.ToTable("User");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Group", b =>

@@ -12,6 +12,6 @@ namespace Raspisanie.Models
 
         [ForeignKey ("AuditoryId")]
         public virtual Auditoria Auditoria { get; set; }
-
+        public int? ChatId { get; set; }
     }
 }

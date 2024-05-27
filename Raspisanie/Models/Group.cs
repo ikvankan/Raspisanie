@@ -16,6 +16,6 @@ namespace Raspisanie.Models
         public int TeacherId { get; set; }
         [ForeignKey("TeacherId")]
         public virtual Teacher Teacher { get; set; }
-
+        public string? ChatId { get; set; }
     }
 }

@@ -93,16 +93,21 @@ namespace Raspisanie.Controllers
             foreach (var teacher in relatedTeachers)
             {
                 // Находим связанные записи в таблице Predmet
-                var relatedPredmets = _db.Predmet.Where(pl => pl.TeacherId == teacher.Id).ToList();
-                foreach(var predmet in relatedPredmets)
+                var relatedPredmets1 = _db.Predmet.Where(pl => pl.TeacherId == teacher.Id).ToList();
+                var relatedPredmets2 = _db.Predmet.Where(pl => pl.SecondTeacherId == teacher.Id).ToList();
+                foreach (var predmet in relatedPredmets1)
                 {
                     var relatedPlacementsInPredmet = _db.Placement.Where(pll=> pll.PredmetId == predmet.Id).ToList();
                     _db.Placement.RemoveRange(relatedPlacementsInPredmet);
                 }
-                
+                foreach (var predmet in relatedPredmets2)
+                {
+                    var relatedPlacementsInPredmet = _db.Placement.Where(pll => pll.SecondPredmetId == predmet.Id).ToList();
+                    _db.Placement.RemoveRange(relatedPlacementsInPredmet);
+                }
                 // Удаляем связанные записи из таблицы Predmet
-                _db.Predmet.RemoveRange(relatedPredmets);
-                
+                _db.Predmet.RemoveRange(relatedPredmets1);
+                _db.Predmet.RemoveRange(relatedPredmets2);
                 // Удаляем связанные записи из таблицы Teacher
                 _db.Teacher.Remove(teacher);
             }

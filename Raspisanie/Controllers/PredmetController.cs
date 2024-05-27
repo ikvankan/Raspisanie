@@ -16,7 +16,8 @@ namespace Raspisanie.Controllers
         }
         public IActionResult Index()
         {
-            IEnumerable<Predmet> objList = _db.Predmet;
+            
+            IEnumerable<Predmet> objList = _db.Predmet.OrderBy(p=>p.GroupId);
             foreach (var obj in objList)
             {
                 obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);

@@ -36,21 +36,52 @@ namespace Raspisanie.Controllers
             //});
             //ViewBag.ItemTypeDropDown = ItemTypeDropDown;
             //Item item = new Item();
-
-            GroupVM groupVM = new GroupVM()
+            GroupVM groupVM;
+            var groupToEdut = _db.Group.Find(Id);
+            
+            if (Id != null)
             {
-                Group = new Group(),
-                AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                groupVM = new GroupVM()
+                {
+                    Group = new Group(),
+                    AuditoriaSelectList = _db.Auditoria
+                .Where(a => a.Id == groupToEdut.AuditoriaId || !_db.Group.Any(t => t.AuditoriaId == a.Id))
+                .Select(i => new SelectListItem
                 {
                     Text = i.AuditoryName,
                     Value = i.Id.ToString()
                 }),
-                TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    TeacherSelectList = _db.Teacher
+                .Where(a => a.Id == groupToEdut.TeacherId || !_db.Group.Any(t => t.TeacherId == a.Id))
+                .Select(i => new SelectListItem
                 {
                     Text = i.TeacherName,
                     Value = i.Id.ToString()
                 }),
-            };
+                };
+            }
+            else
+            {
+                groupVM = new GroupVM()
+                {
+                    Group = new Group(),
+                    AuditoriaSelectList = _db.Auditoria
+                .Where(a => !_db.Group.Any(t => t.AuditoriaId == a.Id))
+                .Select(i => new SelectListItem
+                {
+                    Text = i.AuditoryName,
+                    Value = i.Id.ToString()
+                }),
+                    TeacherSelectList = _db.Teacher
+                .Where(a => !_db.Group.Any(t => t.TeacherId == a.Id))
+                .Select(i => new SelectListItem
+                {
+                    Text = i.TeacherName,
+                    Value = i.Id.ToString()
+                }),
+                };
+            }
+            
             if (Id == null)
             {
                 //Создаем новый
