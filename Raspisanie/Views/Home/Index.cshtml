@@ -10,13 +10,13 @@
         flex-direction: column;
         align-items: center;
         height: 100vh;
-        margin: 0;
+        
     }
 
     #controls {
         display: flex;
-        align-items: center;
-        margin: 20px 0;
+        justify-content:center;
+        
     }
 
         #controls select {
@@ -24,7 +24,7 @@
         }
 
     #calendar-container {
-        width: 80%;
+        width: 100%;
         max-width: 1200px;
     }
 
@@ -229,7 +229,7 @@
 
             // Обработчик для клика на день календаря
             calendar.addEventListener('click', (event) => {
-                event.stopImmediatePropagation()
+                
                 if (event.target.classList.contains('day')) {
                     const day = parseInt(event.target.textContent);
                     const month = parseInt(monthSelect.value) + 1;
@@ -246,40 +246,16 @@
             });
             function generateAll(dateToShow) {
 
-                    method: 'GET'
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        // Предполагая, что представление ShowAll возвращает HTML, вставьте полученный HTML на страницу
-                        document.body.innerHTML = data;
-                    })
-                    .catch(error => {
-                        console.error('There was a problem with your fetch operation:', error);
-                    });
+                
+                // Перенаправляем на ActionMethod 'ShowAll' в 'HomeController'
+                window.location.href = `/Home/GenerateAll?DateToGenerate= ${dateToShow.toISOString()}`;
             }
             // Функция для отправки запроса на сервер и открытия представления ShowAll
             function showAll(dateToShow) {
-                fetch(`/Home/ShowAll?DateToShow=${dateToShow.toISOString()}`, {
-                    method: 'GET'
-                })
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Network response was not ok');
-                        }
-                        return response.text();
-                    })
-                    .then(data => {
-                        // Предполагая, что представление ShowAll возвращает HTML, вставьте полученный HTML на страницу
-                        document.body.innerHTML = data;
-                    })
-                    .catch(error => {
-                        console.error('There was a problem with your fetch operation:', error);
-                    });
+                
+                // Перенаправляем на ActionMethod 'ShowAll' в 'HomeController'
+                window.location.href = `/Home/ShowAll?DateToShow= ${dateToShow.toISOString()} `;
+
             }
 
             // Инициализация селекторов и создание календаря для текущего месяца и года

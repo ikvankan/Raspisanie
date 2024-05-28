@@ -538,8 +538,10 @@ namespace Raspisanie.Controllers
 
             foreach (var placement in Placements)
             {
+
                 PlacementVM placementVM = new PlacementVM()
                 {
+                    
                     NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
                     Placement = placement,
                     GroupSelectList = _db.Group.Select(i => new SelectListItem
@@ -827,7 +829,7 @@ namespace Raspisanie.Controllers
 
 
         [HttpPost]
-        public IActionResult Refresh(List<PlacementVM> placementVMs)
+        public IActionResult Refresh(List<PlacementVM> placementVMs, int? Id)
         {
             
             // Извлекаем все записи Placement из placementVMs
@@ -861,37 +863,41 @@ namespace Raspisanie.Controllers
 
             foreach (var placement in sortedPlacements)
             {
-                var firstPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.PredmetId);
-                var secondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.SecondPredmetId);
-
-                if (!firstPredmet.Laboratory)
+                if (placement.Id == Id)
                 {
-                    secondPredmet = firstPredmet;
-                }
-                if(firstPredmet.Laboratory && !secondPredmet.Laboratory)
-                {
-                    secondPredmet = firstPredmet;
-                }
+                    var firstPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.PredmetId);
+                    var secondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.SecondPredmetId);
 
-                var findedFirstTeacher = _db.Teacher.FirstOrDefault(u => u.Id == firstPredmet.TeacherId);
-                var findedSecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == secondPredmet.SecondTeacherId);
+                    if (!firstPredmet.Laboratory)
+                    {
+                        secondPredmet = firstPredmet;
+                    }
+                    if (firstPredmet.Laboratory && !secondPredmet.Laboratory)
+                    {
+                        secondPredmet = firstPredmet;
+                    }
 
+                    var findedFirstTeacher = _db.Teacher.FirstOrDefault(u => u.Id == firstPredmet.TeacherId);
+                    var findedSecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == secondPredmet.SecondTeacherId);
+
+
+                    var findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == firstPredmet.Group.AuditoriaId);
+                    var findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == secondPredmet.Group.AuditoriaId);
+                    if (firstPredmet.Laboratory)
+                    {
+                        findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedFirstTeacher.AuditoryId);
+                        findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedSecondTeacher.AuditoryId);
+                    }
+                    placement.TeacherId = findedFirstTeacher.Id;
+                    placement.SecondTeacherId = findedSecondTeacher.Id;
+                    placement.AuditoriaId = findedFirstAuditoria.Id;
+                    placement.SecondAuditoriaId = findedSecondAuditoria.Id;
+                    placement.PredmetId = firstPredmet.Id;
+                    placement.SecondPredmetId = secondPredmet.Id;
+
+                    placement.PredmetId = placement.PredmetId;
+                }
                 
-                var findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u=>u.Id==firstPredmet.Group.AuditoriaId);
-                var findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u=>u.Id==secondPredmet.Group.AuditoriaId);
-                if (firstPredmet.Laboratory)
-                {
-                    findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedFirstTeacher.AuditoryId);
-                    findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedSecondTeacher.AuditoryId);
-                }
-                placement.TeacherId = findedFirstTeacher.Id;
-                placement.SecondTeacherId = findedSecondTeacher.Id;
-                placement.AuditoriaId = findedFirstAuditoria.Id;
-                placement.SecondAuditoriaId = findedSecondAuditoria.Id;
-                placement.PredmetId = firstPredmet.Id;
-                placement.SecondPredmetId  = secondPredmet.Id;
-
-                placement.PredmetId = placement.PredmetId;
                 PlacementVM placementVM = new PlacementVM()
                 {
                     NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets

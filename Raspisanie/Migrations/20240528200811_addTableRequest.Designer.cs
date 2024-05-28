@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Raspisanie.Data;
 
@@ -11,9 +12,10 @@ using Raspisanie.Data;
 namespace Raspisanie.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240528200811_addTableRequest")]
+    partial class addTableRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -183,6 +185,9 @@ namespace Raspisanie.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
+                    b.Property<int>("AuditoryId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Date")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -191,12 +196,9 @@ namespace Raspisanie.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("TeacherId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("TeacherId");
+                    b.HasIndex("AuditoryId");
 
                     b.ToTable("Request");
                 });
@@ -353,13 +355,13 @@ namespace Raspisanie.Migrations
 
             modelBuilder.Entity("Raspisanie.Models.Request", b =>
                 {
-                    b.HasOne("Raspisanie.Models.Teacher", "Teacher")
+                    b.HasOne("Raspisanie.Models.Auditoria", "Auditoria")
                         .WithMany()
-                        .HasForeignKey("TeacherId")
+                        .HasForeignKey("AuditoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Teacher");
+                    b.Navigation("Auditoria");
                 });
 
             modelBuilder.Entity("Raspisanie.Models.Teacher", b =>

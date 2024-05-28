@@ -11,5 +11,9 @@ namespace Raspisanie.Models.ViewModels
         public IEnumerable<SelectListItem> AuditoriaSelectList { get; set; }
         public IEnumerable<SelectListItem> TeacherSelectList { get; set; }
         public int NumOfPredmets { get; set; }
+        public bool SECTeacherError { get; set; }
+        public bool SECAudithoryError { get; set; }
+        public bool TeacherError { get; set; }
+        public bool AudithoryError { get; set; }
     }
 }

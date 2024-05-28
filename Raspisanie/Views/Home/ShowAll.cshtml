@@ -45,14 +45,14 @@
                         <input type="hidden" asp-for="@Model[i].Placement.GroupId" />
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <input style="width:30px" asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
+                        <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId" />
                         }
                         else
                         {
-                            <select asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                            <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
                         }
 
 
@@ -98,14 +98,14 @@
                         <input type="hidden" asp-for="@Model[i].Placement.GroupId" />
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <input style="width:30px" asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
-                        <select asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
+                        <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId"></input>
                         }
                         else
                         {
-                            <select asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                            <select data-id="@Model[i].Placement.Id"  class="predmetSelect" asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
                         }
 
 
@@ -144,7 +144,7 @@
         }
     </table>
 
-    <input type="submit" value="Refresh" asp-action="Refresh">
+    <input hidden type="submit" value="Refresh" asp-action="Refresh">
 
     @*<input name="GroupId" type="text" placeholder="Введите номер группы" />
     <input name="Index" type="text" placeholder="Введите номер предмета" />
@@ -155,15 +155,31 @@
 
 
 
-    <input type="submit" value="SaveAll" asp-action="SaveSchedules">
+    <input  type="submit" value="SaveAll" asp-action="SaveSchedules">
 </form>
 
 
 
+@section scripts{
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var selectElements = document.querySelectorAll('.predmetSelect');
+
+            selectElements.forEach(function (selectElement) {
+                selectElement.addEventListener('change', function () {
+                    var form = this.form;
+                    var placementId = this.getAttribute('data-id'); 
+                    console.log(placementId)// Получаем Id размещения из атрибута 'data-id'
+                    // Формируем URL на стороне клиента
+                    var actionUrl = '/Home/Refresh/' + placementId;
+                    form.action = actionUrl;
+                    form.submit();
+                });
+            });
+        });
 
 
 
-<script>
     function updateTeacher(index) {
         var predmetId = document.getElementById("z" + index + "__Placement_PredmetId").value;
         $.ajax({
@@ -186,5 +202,12 @@
         });
 
 
-    }
+    };
+
+    
+
+
 </script>
+}
+
+
