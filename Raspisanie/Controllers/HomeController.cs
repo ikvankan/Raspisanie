@@ -7,6 +7,7 @@ using Raspisanie.Data;
 using Raspisanie.Models;
 using Raspisanie.Models.ViewModels;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 
@@ -206,10 +207,12 @@ namespace Raspisanie.Controllers
         }
 
 
-        [HttpPost]
+        
         public IActionResult GenerateAll(DateTime DateToGenerate)
         {
             IEnumerable<Models.Group> GroupList = _db.Group.ToList();
+            Random rnd = new Random();
+            GroupList = GroupList.OrderBy(x => rnd.Next()).ToList();
             IEnumerable<Predmet> PredmetList = _db.Predmet.ToList();
             IEnumerable<Auditoria> AuditoriaList = _db.Auditoria.ToList();
             IEnumerable<Teacher> TeacherList = _db.Teacher.ToList();
@@ -240,18 +243,18 @@ namespace Raspisanie.Controllers
                     throw new ArgumentException("error");
             }
             bool CanGen = false;
-
-            foreach (var group in GroupList)
+            for (int i = 0; i < numOfPredmet; i++) 
             {
-                
-                while (!CanGen)
+                foreach (var group in GroupList)
                 {
+
                     int numG = 0;
-                    IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == group.Id).ToList();
-                    for (int i = 0; i < numOfPredmet; i++)
+                    while (!CanGen)
                     {
+                        
+                        IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == group.Id).ToList();
                         Random random = new Random();
-                        int indexNumber = i + 1;
+                        
                         // Выбор случайного предмета
 
                         int randomIndex = random.Next(filteredPredmetList.Count()) + 1;
@@ -318,7 +321,7 @@ namespace Raspisanie.Controllers
                             PredmetId = generatedPredmet.Id,
                             SecondPredmetId = generatedPredmet.Id,
                             Date = DateToGenerate.ToShortDateString().ToString(),
-                            index = indexNumber,
+                            index = i+1,
                             AuditoriaId = firstAud,
                             SecondAuditoriaId = secondAud,
                             TeacherId = firstTeacher,
@@ -356,7 +359,7 @@ namespace Raspisanie.Controllers
                             }),
                         };
 
-                        if ((newPlacements.Any(p => p.Placement.TeacherId == placement.TeacherId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.AuditoriaId == placement.AuditoriaId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondTeacherId == placement.SecondTeacherId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondAuditoriaId == placement.SecondAuditoriaId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondTeacherId == placement.TeacherId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondAuditoriaId == placement.AuditoriaId && p.Placement.index == placement.index)))
+                        if ((newPlacements.Any(p => p.Placement.TeacherId == placement.TeacherId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.AuditoriaId == placement.AuditoriaId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondTeacherId == placement.SecondTeacherId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondAuditoriaId == placement.SecondAuditoriaId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondTeacherId == placement.TeacherId && p.Placement.index == placement.index))|| (newPlacements.Any(p => p.Placement.SecondAuditoriaId == placement.AuditoriaId && p.Placement.index == placement.index))|| (newPlacements.Count(p => p.Placement.PredmetId == placement.PredmetId && p.Placement.GroupId == placement.GroupId) >= 2))
                         {
                             if (numG > 1000)
                             {
@@ -368,7 +371,7 @@ namespace Raspisanie.Controllers
                                 CanGen = false;
                                 _db.Placement.Remove(placement);
                                 numG++;
-                                i--;
+                                
                             }
                             
                             
@@ -380,14 +383,113 @@ namespace Raspisanie.Controllers
                         }
                         
                     }
-                    
+                    if (CanGen) { CanGen = false; }
 
                 }
-                if (CanGen) {  CanGen = false; }
+                
 
             }
-            
-            return View(newPlacements);
+
+
+            // Извлекаем все записи Placement из placementVMs
+            List<Placement> Placements = newPlacements.Select(p => p.Placement).ToList();
+
+            // Сортируем записи по GroupId и Index
+            IEnumerable<Placement> sortedPlacements = Placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+
+
+
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = Placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+            List<PlacementVM> placementList = new List<PlacementVM>();
+
+            foreach (var placement in sortedPlacements)
+            {
+                var firstPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.PredmetId);
+                var secondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.SecondPredmetId);
+
+                if (!firstPredmet.Laboratory)
+                {
+                    secondPredmet = firstPredmet;
+                }
+                if (firstPredmet.Laboratory && !secondPredmet.Laboratory)
+                {
+                    secondPredmet = firstPredmet;
+                }
+
+                var findedFirstTeacher = _db.Teacher.FirstOrDefault(u => u.Id == firstPredmet.TeacherId);
+                var findedSecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == secondPredmet.SecondTeacherId);
+
+
+                var findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == firstPredmet.Group.AuditoriaId);
+                var findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == secondPredmet.Group.AuditoriaId);
+                if (firstPredmet.Laboratory)
+                {
+                    findedFirstAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedFirstTeacher.AuditoryId);
+                    findedSecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == findedSecondTeacher.AuditoryId);
+                }
+                placement.TeacherId = findedFirstTeacher.Id;
+                placement.SecondTeacherId = findedSecondTeacher.Id;
+                placement.AuditoriaId = findedFirstAuditoria.Id;
+                placement.SecondAuditoriaId = findedSecondAuditoria.Id;
+                placement.PredmetId = firstPredmet.Id;
+                placement.SecondPredmetId = secondPredmet.Id;
+
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+
+            }
+
+
+            return View(placementList);
         }
         public string GetTeacherName(int predmetId)
         {
@@ -830,6 +932,13 @@ namespace Raspisanie.Controllers
             return View("ShowAll", placementList);
         }
 
+        [HttpGet]
+        public IActionResult CheckRecord(int day, int month, int year)
+        {
+            var date = new DateTime(year, month, day);
+            var hasRecord = _db.Placement.Any(p => p.Date == date.ToShortDateString()) ;
+            return Json(new { hasRecord });
+        }
 
 
 

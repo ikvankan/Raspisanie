@@ -1,48 +1,302 @@
-﻿@{
+﻿
+
+
+
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+    }
+
+    #controls {
+        display: flex;
+        align-items: center;
+        margin: 20px 0;
+    }
+
+        #controls select {
+            margin: 0 10px;
+        }
+
+    #calendar-container {
+        width: 80%;
+        max-width: 1200px;
+    }
+
+    #day-names {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
+
+    #calendar {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 10px;
+    }
+
+    .day {
+        border: 1px solid #ccc;
+        padding: 20px;
+        text-align: center;
+        border-radius: 5px;
+        position: relative;
+    }
+
+        .day.has-record {
+            background-color: #f0f8ff;
+            border-color: #007bff;
+        }
+
+</style>
+
+
+
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <button id="sendMessageButton">Отправить сообщение боту</button>
-    <button disabled id="GenerateFile">Сгенерировать расписание и отправить его в бота</button> 
-    
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Рабочий календарь</title>
+    <link rel="stylesheet" href="~/css/styles.css">
+</head>
+<body>
+    <div id="controls">
+        <button id="prev-month">&larr;</button>
+        <select id="month-select"></select>
+        <select id="year-select"></select>
+        <button id="next-month">&rarr;</button>
+    </div>
+    <div id="calendar-container">
+        <div id="day-names"></div>
+        <div id="calendar"></div>
+    </div>
+    <script src="~/js/script.js"></script>
+</body>
+</html>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const calendar = document.getElementById('calendar');
+            const dayNames = document.getElementById('day-names');
+            const monthSelect = document.getElementById('month-select');
+            const yearSelect = document.getElementById('year-select');
+            const prevMonthButton = document.getElementById('prev-month');
+            const nextMonthButton = document.getElementById('next-month');
+
+            const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+            const months = [
+                'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',
+                'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'
+            ];
+
+            // Заполнение заголовков дней недели
+            function populateDayNames() {
+                dayNames.innerHTML = '';
+                daysOfWeek.forEach(day => {
+                    const dayElement = document.createElement('div');
+                    dayElement.textContent = day;
+                    dayNames.appendChild(dayElement);
+                });
+            }
+
+            // Заполнение выпадающих списков месяца и года
+            function populateSelectors() {
+                months.forEach((month, index) => {
+                    const option = document.createElement('option');
+                    option.value = index;
+                    option.textContent = month;
+                    monthSelect.appendChild(option);
+                });
+
+                const currentYear = new Date().getFullYear();
+                for (let year = currentYear - 50; year <= currentYear + 50; year++) {
+                    const option = document.createElement('option');
+                    option.value = year;
+                    option.textContent = year;
+                    yearSelect.appendChild(option);
+                }
+
+                // Установим текущий месяц и год по умолчанию
+                monthSelect.value = new Date().getMonth();
+                yearSelect.value = new Date().getFullYear();
+            }
+
+            // Функция для создания календаря
+            
+            async function generateCalendar(month, year) {
+                const firstDay = new Date(year, month, 1).getDay();
+                const daysInMonth = new Date(year, month + 1, 0).getDate();
+                calendar.innerHTML = '';
+
+                // Заполнение пустых ячеек до первого дня месяца
+                for (let i = 0; i < (firstDay === 0 ? 6 : firstDay - 1); i++) {
+                    const emptyElement = document.createElement('div');
+                    emptyElement.classList.add('day');
+                    calendar.appendChild(emptyElement);
+                }
+
+                // Заполнение дней месяца
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayElement = document.createElement('div');
+                    dayElement.classList.add('day');
+                    dayElement.textContent = day;
+
+                    // Проверка на наличие записи в базе данных
+                    const hasRecord = await checkForRecord(day, month + 1, year);
+                    if (hasRecord) {
+                        dayElement.classList.add('has-record');
+                    }
+
+                    calendar.appendChild(dayElement);
+                }
+            }
 
 
-    <form method="post" asp-action="Generate">
-        <div style="height:auto; width:300px">
-            <label>Номер группы</label>
-            <input class="form-control" name="groupNumber" />
-            <button type="submit" class="btn btn-danger w-100">Сгенерировать</button>
-        </div>
-    </form>
 
-    <form method="post" asp-action="GenerateAll">
-        <div style="height:auto; width:300px">
-            <label>Дата</label>
-            <input type="date" class="form-control" name="DateToGenerate" />
+            async function checkForRecord(day, month, year) {
+                try {
+                    const response = await fetch(`/Home/CheckRecord?day=${day}&month=${month}&year=${year}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    const data = await response.json();
+                    return data.hasRecord;
+                } catch (error) {
+                    console.error('Error checking record:', error);
+                    return false;
+                }
+            }
 
-            <button type="submit" class="btn btn-danger w-100">Сгенерировать полное расписание</button>
-        </div>
-    </form>
+            // Обработчик для кнопки предыдущего месяца
+            prevMonthButton.addEventListener('click', () => {
+                let month = parseInt(monthSelect.value);
+                let year = parseInt(yearSelect.value);
+                if (month === 0) {
+                    month = 11;
+                    year--;
+                } else {
+                    month--;
+                }
+                monthSelect.value = month;
+                yearSelect.value = year;
+                generateCalendar(month, year);
+            });
+
+            // Обработчик для кнопки следующего месяца
+            nextMonthButton.addEventListener('click', () => {
+                let month = parseInt(monthSelect.value);
+                let year = parseInt(yearSelect.value);
+                if (month === 11) {
+                    month = 0;
+                    year++;
+                } else {
+                    month++;
+                }
+                monthSelect.value = month;
+                yearSelect.value = year;
+                generateCalendar(month, year);
+            });
+
+            // Обработчик для изменения месяца и года
+            monthSelect.addEventListener('change', () => {
+                const month = parseInt(monthSelect.value);
+                const year = parseInt(yearSelect.value);
+                generateCalendar(month, year);
+            });
+
+            yearSelect.addEventListener('change', () => {
+                const month = parseInt(monthSelect.value);
+                const year = parseInt(yearSelect.value);
+                generateCalendar(month, year);
+            });
+
+            // Обработчик для клика на день календаря
+            calendar.addEventListener('click', (event) => {
+                event.stopImmediatePropagation()
+                if (event.target.classList.contains('day')) {
+                    const day = parseInt(event.target.textContent);
+                    const month = parseInt(monthSelect.value) + 1;
+                    const year = parseInt(yearSelect.value);
+                    const dateToShow = new Date(`${year}-${month < 10 ? '0' + month : month}-${day < 10 ? '0' + day : day}`);
+                    const hasRecord = event.target.classList.contains('has-record');
+
+                    if (hasRecord) {
+                         showAll(dateToShow);
+                    } else {
+                        generateAll(dateToShow);
+                    }
+                }
+            });
+            function generateAll(dateToShow) {
+                fetch(`/Home/GenerateAll?DateToGenerate=${dateToShow.toISOString()}`, {
+                    method: 'GET'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Предполагая, что представление ShowAll возвращает HTML, вставьте полученный HTML на страницу
+                        document.body.innerHTML = data;
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with your fetch operation:', error);
+                    });
+            }
+            // Функция для отправки запроса на сервер и открытия представления ShowAll
+            function showAll(dateToShow) {
+                fetch(`/Home/ShowAll?DateToShow=${dateToShow.toISOString()}`, {
+                    method: 'GET'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok');
+                        }
+                        return response.text();
+                    })
+                    .then(data => {
+                        // Предполагая, что представление ShowAll возвращает HTML, вставьте полученный HTML на страницу
+                        document.body.innerHTML = data;
+                    })
+                    .catch(error => {
+                        console.error('There was a problem with your fetch operation:', error);
+                    });
+            }
+
+            // Инициализация селекторов и создание календаря для текущего месяца и года
+            populateDayNames();
+            populateSelectors();
+            generateCalendar(new Date().getMonth(), new Date().getFullYear());
+        });
+
+    </script>
+}
 
 
-    <form method="post" asp-action="ShowAll">
-        <div style="height:auto; width:300px">
-            <label>Дата</label>
-            <input type="date" class="form-control" name="DateToShow" />
-            <button type="submit" class="btn btn-danger w-100">Посмотреть расписание</button>
-        </div>
-    </form>
 
 
 
-</div>
-<script>
-    document.getElementById('sendMessageButton').addEventListener('click', async () => {
-        const response = await fetch('/SendMessageToBot');
-        const data = await response.json();
-        console.log(data);
-    });
-</script>
+
+
+
+
+

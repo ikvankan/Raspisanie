@@ -16,3 +16,51 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+
+#controls {
+    display: flex;
+    align-items: center;
+    margin: 20px 0;
+}
+
+    #controls select {
+        margin: 0 10px;
+    }
+
+#calendar-container {
+    width: 80%;
+    max-width: 1200px;
+}
+
+#day-names {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+#calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 10px;
+}
+
+.day {
+    border: 1px solid #ccc;
+    padding: 20px;
+    text-align: center;
+    border-radius: 5px;
+    position: relative;
+}
+.day:hover{
+    transform:scale(1.2);
+    background: red;
+    transition: 1.5s;
+}
+    .day.has-record {
+        background-color: #f0f8ff;
+        border-color: #007bff;
+    }
