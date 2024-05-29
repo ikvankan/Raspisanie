@@ -10,13 +10,11 @@
         flex-direction: column;
         align-items: center;
         height: 100vh;
-        
     }
 
     #controls {
         display: flex;
-        justify-content:center;
-        
+        justify-content: center;
     }
 
         #controls select {
@@ -44,18 +42,72 @@
     }
 
     .day {
-        border: 1px solid #ccc;
+        
         padding: 20px;
         text-align: center;
         border-radius: 5px;
         position: relative;
+        background: white;
+        font-size: 3rem;
+        user-select: none;
+        border-radius: 1rem;
+        outline: 2px solid black;
+        padding: 1.1rem 2rem;
+        box-shadow: 5px 5px 2px #000000C9;
+        cursor: pointer;
+        transition: all 0.1s ease-out;
     }
 
+    .day:active {
+        box-shadow: none;
+        transform: translate(5px, 5px);
+    }
         .day.has-record {
-            background-color: #f0f8ff;
-            border-color: #007bff;
+            background: white;
+            border: 5px solid #62D8EF;
+        }
+        .day:hover{
+            background: lightgray;
+            
+        }
+        .day.has-record:hover {
+            background: #62D8EF;
+           
         }
 
+        .day.has-record.today {
+                background-color: #00BD80;
+                border: 5px solid #62D8EF;
+                
+        }
+
+        .day.has-record.today:hover {
+                background: #62D8EF;
+                
+        }
+        .today {
+        background-color: #00BD80;
+        
+        }
+
+    .sunday {
+        background-color: #FF9BAA;
+        pointer-events: none;
+        
+    }
+    .container{
+        background: #E5E4E2;
+        border-radius: 2rem;
+        outline: 2px solid black;
+        box-shadow: 10px 10px 5px #000000C9;
+        
+    }
+
+    .calandarik {
+        display:flex;
+        align-items: center;
+        flex-direction: column;
+    }
 </style>
 
 
@@ -74,16 +126,19 @@
     <link rel="stylesheet" href="~/css/styles.css">
 </head>
 <body>
-    <div id="controls">
-        <button id="prev-month">&larr;</button>
-        <select id="month-select"></select>
-        <select id="year-select"></select>
-        <button id="next-month">&rarr;</button>
-    </div>
-    <div id="calendar-container">
-        <div id="day-names"></div>
-        <div id="calendar"></div>
-    </div>
+    <div class="calandarik">
+        <div id="controls">
+            <button id="prev-month">&larr;</button>
+            <select id="month-select"></select>
+            <select id="year-select"></select>
+            <button id="next-month">&rarr;</button>
+        </div>
+        <div id="calendar-container">
+            <div id="day-names"></div>
+            <div id="calendar"></div>
+        </div>
+</div>
+    
     <script src="~/js/script.js"></script>
 </body>
 </html>
@@ -137,7 +192,6 @@
             }
 
             // Функция для создания календаря
-            
             async function generateCalendar(month, year) {
                 const firstDay = new Date(year, month, 1).getDay();
                 const daysInMonth = new Date(year, month + 1, 0).getDate();
@@ -156,6 +210,16 @@
                     dayElement.classList.add('day');
                     dayElement.textContent = day;
 
+                    const today = new Date();
+                    if (day === today.getDate() && month === today.getMonth() && year === today.getFullYear()) {
+                        dayElement.classList.add('today');
+                    }
+
+                    const weekDay = new Date(year, month, day).getDay();
+                    if (weekDay === 0) {
+                        dayElement.classList.add('sunday');
+                    }
+
                     // Проверка на наличие записи в базе данных
                     const hasRecord = await checkForRecord(day, month + 1, year);
                     if (hasRecord) {
@@ -165,8 +229,6 @@
                     calendar.appendChild(dayElement);
                 }
             }
-
-
 
             async function checkForRecord(day, month, year) {
                 try {
@@ -229,7 +291,6 @@
 
             // Обработчик для клика на день календаря
             calendar.addEventListener('click', (event) => {
-                
                 if (event.target.classList.contains('day')) {
                     const day = parseInt(event.target.textContent);
                     const month = parseInt(monthSelect.value) + 1;
@@ -238,24 +299,20 @@
                     const hasRecord = event.target.classList.contains('has-record');
 
                     if (hasRecord) {
-                         showAll(dateToShow);
+                        showAll(dateToShow);
                     } else {
                         generateAll(dateToShow);
                     }
                 }
             });
-            function generateAll(dateToShow) {
 
-                
-                // Перенаправляем на ActionMethod 'ShowAll' в 'HomeController'
-                window.location.href = `/Home/GenerateAll?DateToGenerate= ${dateToShow.toISOString()}`;
+            function generateAll(dateToShow) {
+                window.location.href = `/Home/GenerateAll?DateToGenerate=${dateToShow.toISOString()}`;
             }
+
             // Функция для отправки запроса на сервер и открытия представления ShowAll
             function showAll(dateToShow) {
-                
-                // Перенаправляем на ActionMethod 'ShowAll' в 'HomeController'
-                window.location.href = `/Home/ShowAll?DateToShow= ${dateToShow.toISOString()} `;
-
+                window.location.href = `/Home/ShowAll?DateToShow=${dateToShow.toISOString()}`;
             }
 
             // Инициализация селекторов и создание календаря для текущего месяца и года
@@ -263,16 +320,8 @@
             populateSelectors();
             generateCalendar(new Date().getMonth(), new Date().getFullYear());
         });
-
     </script>
 }
-
-
-
-
-
-
-
 
 
 

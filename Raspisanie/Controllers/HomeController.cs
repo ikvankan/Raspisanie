@@ -946,7 +946,106 @@ namespace Raspisanie.Controllers
             return Json(new { hasRecord });
         }
 
+        [HttpPost]
+        public IActionResult CheckError(List<PlacementVM> placementVMs)
+        {
+            List<Placement> placements = placementVMs.Select(p => p.Placement).ToList();
 
+            IEnumerable<Placement> sortedPlacements = placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+            List<PlacementVM> placementList = new List<PlacementVM>();
+            
+            foreach (var placement in sortedPlacements)
+            {
+                bool teacherError = false;
+                bool SteacherError = false;
+                bool auditoryError = false;
+                bool SauditoryError = false;
+
+                var otherPlacements = sortedPlacements.Where(p => p != placement);
+
+                if (otherPlacements.Any(p => p.TeacherId == placement.TeacherId && p.index == placement.index) ||
+                    otherPlacements.Any(p => p.SecondTeacherId == placement.TeacherId && p.index == placement.index))
+                {
+                    teacherError = true;
+                }
+                if (otherPlacements.Any(p => p.SecondTeacherId == placement.SecondTeacherId && p.index == placement.index) ||
+                    otherPlacements.Any(p => p.TeacherId == placement.SecondTeacherId && p.index == placement.index))
+                {
+                    SteacherError = true;
+                }
+                if (otherPlacements.Any(p => p.AuditoriaId == placement.AuditoriaId && p.index == placement.index) ||
+                    otherPlacements.Any(p => p.SecondAuditoriaId == placement.AuditoriaId && p.index == placement.index))
+                {
+                    auditoryError = true;
+                }
+                if (otherPlacements.Any(p => p.SecondAuditoriaId == placement.SecondAuditoriaId && p.index == placement.index) ||
+                    otherPlacements.Any(p => p.AuditoriaId == placement.SecondAuditoriaId && p.index == placement.index))
+                {
+                    SauditoryError = true;
+                }
+
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    AudithoryError = auditoryError,
+                    SECAudithoryError=SauditoryError,
+                    TeacherError=teacherError,
+                    SECTeacherError=SteacherError,
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+
+            }
+
+            ModelState.Clear();
+            return View("ShowAll", placementList);
+        }
 
     }
 }
