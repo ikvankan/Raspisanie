@@ -1163,6 +1163,12 @@ namespace Raspisanie.Controllers
             string excelName = $"Расписание-на{DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd.dd.MM.yyyy}.xlsx";
             return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
         }
+
+        public ActionResult RequestsList()
+        {
+            var requests = _db.Request.ToList(); // _context - это ваш DbContext
+            return PartialView("_RequestsList", requests);
+        }
     }
 }
 

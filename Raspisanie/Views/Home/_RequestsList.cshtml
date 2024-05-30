@@ -1,0 +1,21 @@
+﻿@model IEnumerable<Raspisanie.Models.Request>
+
+<ul>
+    @foreach (var request in Model)
+    {
+        <li>@request.Date - @request.Description</li>
+    }
+</ul>
+<script>
+    $(document).ready(function () {
+        $('#requestsButton').click(function () {
+            $.ajax({
+                url: '@Url.Action("RequestsList", "Home")',
+                type: 'GET',
+                success: function (data) {
+                    $('#requestsListContainer').html(data);
+                }
+            });
+        });
+    });
+</script>

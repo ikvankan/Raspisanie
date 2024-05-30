@@ -39,6 +39,20 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">О разработчике</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" style="user-select: none;" id="requestsButton">Показать запросы</a>
+                        </li>
+                        
+
+                        <div id="requestsModal" class="modal">
+                            <div class="modal-content">
+                                <div id="myModalHeader"></div>
+                                <span class="close">&times;</span>
+                                <div id="requestsListContainer"></div>
+                            </div>
+                        </div>
+
+                       
                     </ul>
                 </div>
             </div>
@@ -61,6 +75,114 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.18/dist/summernote.min.js"></script>
     <script src="https://cdn.syncfusion.com/ej2/23.1.36/dist/ej2.min.js"></script>
+    <script>
+        // Делаем модальное окно перемещаемым
+        function dragElement(element) {
+            var pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            if (document.getElementById(element.id + "Header")) {
+                // если присутствует элемент с id header, то перемещение за этот элемент
+                document.getElementById(element.id + "Header").onmousedown = dragMouseDown;
+            } else {
+                // иначе перемещение за само модальное окно
+                element.onmousedown = dragMouseDown;
+            }
+
+            function dragMouseDown(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // получаем начальные координаты курсора:
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                // вызываем функцию при каждом движении курсора:
+                document.onmousemove = elementDrag;
+            }
+
+            function elementDrag(e) {
+                e = e || window.event;
+                e.preventDefault();
+                // вычисляем новые координаты курсора:
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                // устанавливаем новые координаты элемента:
+                element.style.top = (element.offsetTop - pos2) + "px";
+                element.style.left = (element.offsetLeft - pos1) + "px";
+            }
+
+            function closeDragElement() {
+                // останавливаем перемещение при отпускании кнопки мыши:
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        $(document).ready(function () {
+            var modal = $('#requestsModal');
+            var btn = $('#requestsButton');
+            var span = $('.close');
+            var interval;
+
+            function updateRequests() {
+                $.ajax({
+                    url: '@Url.Action("RequestsList", "Home")',
+                    type: 'GET',
+                    success: function (data) {
+                        $('#requestsListContainer').html(data);
+                    }
+                });
+            }
+
+            btn.click(function () {
+                updateRequests();
+                modal.show();
+                dragElement(modal[0]); // Инициализируем функцию перемещения
+
+                // Запускаем периодическое обновление каждые 5 секунд (5000 мс)
+                interval = setInterval(updateRequests, 5000);
+            });
+
+            span.click(function () {
+                modal.hide();
+                clearInterval(interval); // Останавливаем периодическое обновление
+            });
+        });
+    </script>
+    
+
+
+    <style>
+        .modal {
+            display: none; /* Скрыть модальное окно по умолчанию */
+            position: fixed; /* Оставаться на месте при прокрутке */
+            z-index: 1000; /* Высокий z-index, чтобы окно было поверх других элементов */
+            left: 0;
+            top: 0;
+            padding:10px;
+            width: auto; /* Автоматическая ширина */
+            height: auto; /* Автоматическая высота */
+            box-shadow: 0px 0px 15px red;
+            
+            border-radius:15px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            
+            
+            width: 100%; /* Можно изменить на нужную ширину */
+            
+            position: relative; /* Относительное позиционирование для удобства перемещения */
+        }
+
+        .close {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            cursor: pointer;
+        }
+    </style>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
