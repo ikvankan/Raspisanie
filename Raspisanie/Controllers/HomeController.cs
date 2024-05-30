@@ -1091,8 +1091,7 @@ namespace Raspisanie.Controllers
 
                 // Заголовок\
                 worksheet.Cells["A1:R200"].Style.Font.Name = "Times New Roman";
-                worksheet.Cells["A1:R200"].Style.Fill.PatternType = ExcelFillStyle.Solid;
-                worksheet.Cells["A1:R200"].Style.Fill.BackgroundColor.SetColor(Color.White);
+                
                 worksheet.Cells["A1"].Value = $"РАСПИСАНИЕ ЗАНЯТИЙ НА {DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dd.MM.yyyy} ({DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd})";
                 worksheet.Cells["A1:E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet.Cells["A1:E1"].Style.Font.Bold = true;
