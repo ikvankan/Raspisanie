@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Drawing;
+using OfficeOpenXml;
+using OfficeOpenXml.Style;
 using Raspisanie.Data;
 using Raspisanie.Models;
 using Raspisanie.Models.ViewModels;
@@ -10,6 +13,8 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using System.Security.Cryptography;
 
 namespace Raspisanie.Controllers
 {
@@ -1047,6 +1052,118 @@ namespace Raspisanie.Controllers
             return View("ShowAll", placementList);
         }
 
+
+        public IActionResult ExportToExcel(List<PlacementVM> model)
+        {
+
+            List<Placement> placements = model.Select(p => p.Placement).ToList();
+
+            IEnumerable<Placement> sortedPlacements = placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+            // Считаем количество записей для каждого GroupId
+            
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+
+
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            
+            var stream = new MemoryStream();
+            using (var package = new ExcelPackage(stream))
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Расписание");
+
+                // Заголовок\
+                worksheet.Cells["A1:R200"].Style.Font.Name = "Times New Roman";
+                worksheet.Cells["A1:R200"].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells["A1:R200"].Style.Fill.BackgroundColor.SetColor(Color.White);
+                worksheet.Cells["A1"].Value = $"РАСПИСАНИЕ ЗАНЯТИЙ НА {DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dd.MM.yyyy} ({DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd})";
+                worksheet.Cells["A1:E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells["A1:E1"].Style.Font.Bold = true;
+                worksheet.Cells["A1:E1"].Style.Font.Size = 20;
+                worksheet.Cells["A1:E1"].Merge = true;
+                worksheet.Cells["A2"].Value = "Номер группы, ауд";
+                worksheet.Cells["B2:E2"].Merge = true;
+                worksheet.Cells["B2"].Value = "Расписание";
+                worksheet.Cells["B2:E2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Column(1).Width = 30;
+                worksheet.Column(2).Width = 30;
+                worksheet.Column(3).Width = 30;
+                worksheet.Column(4).Width = 30;
+                worksheet.Column(5).Width = 30;
+
+                worksheet.Cells[2, 1, 2, 5].Style.Font.Bold = true;
+                worksheet.Cells[2, 1, 2, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[2, 1, 2, 5].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells[2, 1, model.Count + 2, 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[2, 2, model.Count + 2, 3].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[2, 2, model.Count + 2, 4].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[2, 2, model.Count + 2, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                int row = 3;
+                int old = -1;
+                int startRow = 3;
+                for (int i = 0; i < model.Count; i++)
+                {
+                    int temp = model[i].Placement.GroupId;
+                    if (old != temp)
+                    {
+                        if (i != 0)
+                        {
+                            worksheet.Cells[startRow, 1, row - 1, 1].Merge = true;
+                            worksheet.Row(startRow).Style.WrapText = true;
+                            worksheet.Cells[startRow, 1, row - 1, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                            
+                        }
+
+                        worksheet.Cells[row, 1].Value = $"Группа номер: {model[i].Placement.Group.Name}\nауд. {model[i].Placement.Group.Auditoria.AuditoryName}\nКуратор {model[i].Placement.Group.Teacher.TeacherName}";
+
+                        startRow = row;
+                        old = temp;
+                    }
+
+                    worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}";
+                    worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}, {model[i].Placement.Auditoria.AuditoryName}";
+
+                    if (model[i].Placement.Predmet.Laboratory && (model[i].Placement.SecondPredmet!= model[i].Placement.Predmet))
+                    {
+                        worksheet.Cells[row, 3].Value = model[i].Placement.SecondPredmet.PredmetName;
+                        
+                    }
+                    if (model[i].Placement.Predmet.Laboratory)
+                    {
+                        worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}, {model[i].Placement.SecondAuditoria.AuditoryName}";
+                    }
+                        
+                    row++;
+                }
+                worksheet.Cells[startRow, 1, row - 1, 1].Merge = true;
+                worksheet.Row(startRow).Style.WrapText = true;
+                worksheet.Cells[startRow, 1, row - 1, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                
+                //worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+                package.Save();
+            }
+
+            stream.Position = 0;
+            string excelName = $"Расписание-на{DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd.dd.MM.yyyy}.xlsx";
+            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+        }
     }
 }
 

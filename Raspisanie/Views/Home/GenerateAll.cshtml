@@ -219,11 +219,13 @@
 
 
     <input type="submit" value="SaveAll" asp-action="SaveSchedules">
+    <input type="submit" value="Excel" asp-action="ExportToExcel" />
 </form>
 <form action="/Home/GenerateAll" method="post">
     <input type="hidden" name="DateToGenerate" value="@dateObj.ToString("o")" />
     <button type="submit" id="generateButton">Сгенерировать</button>
 </form>
+
 
 
 
