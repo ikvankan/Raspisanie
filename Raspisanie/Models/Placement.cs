@@ -30,5 +30,7 @@ namespace Raspisanie.Models
         public int SecondTeacherId { get; set; }
         [ForeignKey("SecondTeacherId")]
         public virtual Teacher SecondTeacher { get; set; }
+        public string? Desc { get; set; }
+        public string? SDesc { get; set; }
     }
 }

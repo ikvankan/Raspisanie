@@ -4,6 +4,7 @@
     using System.IO.Pipes;
     using Telegram.Bot;
     using Telegram.Bot.Types;
+    using Telegram.Bot.Types.InputFiles;
 
     public class TelegramBotService
     {
@@ -25,7 +26,7 @@
         {
             using (var fileStream = System.IO.File.OpenRead(filePath))
             {
-                var inputFile = new InputFileStream(fileStream);
+                var inputFile = new InputOnlineFile(fileStream);
                 await _botClient.SendDocumentAsync(chatId, inputFile, caption: Path.GetFileName(filePath));
             }
         }

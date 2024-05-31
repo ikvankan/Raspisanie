@@ -51,13 +51,16 @@
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <input style="width:30px" asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
                         <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
+                        <input style="width:60px" type="text" asp-for="@Model[i].Placement.Desc" value="@Model[i].Placement.Desc" />
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId" />
+                           
                         }
                         else
                         {
                             <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                            <input style="width:60px" type="text" asp-for="@Model[i].Placement.SDesc" value="@Model[i].Placement.SDesc" />
                         }
 
 
@@ -134,13 +137,16 @@
                         <input type="hidden" asp-for="@Model[i].Placement.Date" value="@Model[i].Placement.Date" />
                         <input style="width:30px" asp-for="@Model[i].Placement.index" value="@Model[i].Placement.index" />
                         <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.PredmetId" asp-items="@Model[i].PredmetSelectList" value="@Model[i].Placement.PredmetId"></select>
+                        <input style="width:60px" type="text" asp-for="@Model[i].Placement.Desc" value="@Model[i].Placement.Desc" />
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId"></input>
+                            
                         }
                         else
                         {
                             <select data-id="@Model[i].Placement.Id"  class="predmetSelect" asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                            <input style="width:60px" type="text" asp-for="@Model[i].Placement.SDesc" value="@Model[i].Placement.SDesc" />
                         }
 
 

@@ -15,6 +15,14 @@ using System.IO;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
 using System.Security.Cryptography;
+using IronXL;
+using System.Drawing.Imaging;
+using System.IO;
+using Telegram.Bot;
+using Telegram.Bot.Types.InputFiles;
+using System.IO;
+
+
 
 namespace Raspisanie.Controllers
 {
@@ -1053,17 +1061,14 @@ namespace Raspisanie.Controllers
         }
 
 
-        public IActionResult ExportToExcel(List<PlacementVM> model)
+        public async Task<IActionResult> ExportToExcel(List<PlacementVM> model)
         {
-
             List<Placement> placements = model.Select(p => p.Placement).ToList();
 
             IEnumerable<Placement> sortedPlacements = placements
                 .OrderBy(p => p.GroupId)
                 .ThenBy(p => p.index)
                 .ToList();
-            // Считаем количество записей для каждого GroupId
-            
 
             foreach (var obj in sortedPlacements)
             {
@@ -1078,20 +1083,15 @@ namespace Raspisanie.Controllers
                 obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
             }
 
-
-
-
             ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
 
-            
             var stream = new MemoryStream();
             using (var package = new ExcelPackage(stream))
             {
                 var worksheet = package.Workbook.Worksheets.Add("Расписание");
 
-                // Заголовок\
                 worksheet.Cells["A1:R200"].Style.Font.Name = "Times New Roman";
-                
+
                 worksheet.Cells["A1"].Value = $"РАСПИСАНИЕ ЗАНЯТИЙ НА {DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dd.MM.yyyy} ({DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd})";
                 worksheet.Cells["A1:E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet.Cells["A1:E1"].Style.Font.Bold = true;
@@ -1102,7 +1102,7 @@ namespace Raspisanie.Controllers
                 worksheet.Cells["B2"].Value = "Расписание";
                 worksheet.Cells["B2:E2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
                 worksheet.Column(1).Width = 30;
-                worksheet.Column(2).Width = 30;
+                worksheet.Column(2).Width = 40;
                 worksheet.Column(3).Width = 30;
                 worksheet.Column(4).Width = 30;
                 worksheet.Column(5).Width = 30;
@@ -1127,42 +1127,157 @@ namespace Raspisanie.Controllers
                             worksheet.Cells[startRow, 1, row - 1, 1].Merge = true;
                             worksheet.Row(startRow).Style.WrapText = true;
                             worksheet.Cells[startRow, 1, row - 1, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                            
+
                         }
 
-                        worksheet.Cells[row, 1].Value = $"Группа номер: {model[i].Placement.Group.Name}\nауд. {model[i].Placement.Group.Auditoria.AuditoryName}\nКуратор {model[i].Placement.Group.Teacher.TeacherName}";
+                        worksheet.Cells[row, 1].Value = $"{model[i].Placement.Group.Name} ауд. {model[i].Placement.Group.Auditoria.AuditoryName}\nКуратор {model[i].Placement.Group.Teacher.TeacherName}";
 
                         startRow = row;
                         old = temp;
                     }
 
-                    worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}";
+                    worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}   {model[i].Placement.Desc}";
                     worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}, {model[i].Placement.Auditoria.AuditoryName}";
 
-                    if (model[i].Placement.Predmet.Laboratory && (model[i].Placement.SecondPredmet!= model[i].Placement.Predmet))
+                    if (model[i].Placement.Predmet.Laboratory && (model[i].Placement.SecondPredmet != model[i].Placement.Predmet))
                     {
-                        worksheet.Cells[row, 3].Value = model[i].Placement.SecondPredmet.PredmetName;
-                        
+                        worksheet.Cells[row, 3].Value = $"{model[i].Placement.SecondPredmet.PredmetName}   {model[i].Placement.SDesc}";
+
                     }
                     if (model[i].Placement.Predmet.Laboratory)
                     {
                         worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}, {model[i].Placement.SecondAuditoria.AuditoryName}";
                     }
-                        
+
                     row++;
                 }
                 worksheet.Cells[startRow, 1, row - 1, 1].Merge = true;
                 worksheet.Row(startRow).Style.WrapText = true;
                 worksheet.Cells[startRow, 1, row - 1, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
-                
-                //worksheet.Cells[worksheet.Dimension.Address].AutoFitColumns();
+
                 package.Save();
             }
 
             stream.Position = 0;
             string excelName = $"Расписание-на{DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd.dd.MM.yyyy}.xlsx";
-            return File(stream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
+
+            // Сохраняем Excel файл на диск временно
+            var tempExcelPath = Path.GetTempFileName() + ".xlsx";
+            using (var fileStream = new FileStream(tempExcelPath, FileMode.Create, FileAccess.Write))
+            {
+                stream.Position = 0;
+                stream.CopyTo(fileStream);
+            }
+
+            // Конвертация Excel в изображение
+            var tempImagePath = Path.GetTempFileName() + ".png";
+            ConvertExcelToImage(tempExcelPath, tempImagePath);
+
+            // Отправка изображения через телеграмм бот
+            await SendImageToTelegramBot(tempImagePath);
+
+            // Удаление временных файлов
+            System.IO.File.Delete(tempExcelPath);
+            System.IO.File.Delete(tempImagePath);
+
+            stream.Position = 0;
+            return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
         }
+
+        private void ConvertExcelToImage(string excelPath, string imagePath)
+        {
+            using (var package = new ExcelPackage(new FileInfo(excelPath)))
+            {
+                var worksheet = package.Workbook.Worksheets[0];
+
+                // Определяем размеры таблицы в ячейках
+                int rowCount = worksheet.Dimension.End.Row;
+                int columnCount = worksheet.Dimension.End.Column;
+
+                // Определяем размеры каждой ячейки на изображении
+                int cellWidth = 300; // Размер ячейки по ширине
+                int cellHeight = 40; // Размер ячейки по высоте
+
+                // Вычисляем общие размеры изображения
+                int width = columnCount * cellWidth;
+                int height = rowCount * cellHeight;
+
+                // Создаем изображение
+                using (var bitmap = new Bitmap((width/4)+100, height/4))
+                {
+                    using (var graphics = Graphics.FromImage(bitmap))
+                    {
+                        graphics.Clear(Color.White);
+                        var range = worksheet.Cells[worksheet.Dimension.Address];
+                        foreach (var cell in range)
+                        {
+                            int row = cell.Start.Row - 1;
+                            int col = cell.Start.Column - 1;
+                            string text = cell.Text;
+
+                            // Определяем координаты и размеры каждой ячейки на изображении
+                            RectangleF cellRect = new RectangleF(col * cellWidth, row * cellHeight, cellWidth, cellHeight);
+
+                            // Рисуем текст в ячейке
+                            if (row == 0 && col == 0) // Если это первая ячейка
+                            {
+                                // Определяем размеры текста
+                                SizeF textSize = graphics.MeasureString(text, new Font("Times New Roman", 20));
+
+                                // Вычисляем координаты для центрирования текста в ячейке
+                                float centerX = ((width / 4) + 100)/4;
+                                float centerY = cellRect.Top + (cellRect.Height - textSize.Height) / 2;
+
+                                // Рисуем текст по центру ячейки
+                                graphics.DrawString(text, new Font("Times New Roman", 20,FontStyle.Bold), Brushes.Black, centerX, centerY);
+                            }
+                            else // Для остальных ячеек
+                            {
+                                graphics.DrawString(text, new Font("Times New Roman", 14), Brushes.Black, cellRect);
+                            }
+
+
+                            var borders = cell.Style.Border;
+                            if (borders.Top.Style != ExcelBorderStyle.None)
+                            {
+                                graphics.DrawLine(new Pen(Color.Black), cellRect.Left, cellRect.Top, cellRect.Right, cellRect.Top);
+                            }
+                            if (borders.Bottom.Style != ExcelBorderStyle.None)
+                            {
+                                graphics.DrawLine(new Pen(Color.Black), cellRect.Left, cellRect.Bottom, cellRect.Right, cellRect.Bottom);
+                            }
+                            if (borders.Left.Style != ExcelBorderStyle.None)
+                            {
+                                graphics.DrawLine(new Pen(Color.Black), cellRect.Left, cellRect.Top, cellRect.Left, cellRect.Bottom);
+                            }
+                            if (borders.Right.Style != ExcelBorderStyle.None)
+                            {
+                                graphics.DrawLine(new Pen(Color.Black), cellRect.Right, cellRect.Top, cellRect.Right, cellRect.Bottom);
+                            }
+                        }
+                    }
+
+                    // Сохраняем изображение
+                    bitmap.Save(imagePath, ImageFormat.Png);
+                }
+            }
+        }
+
+
+        public async Task SendImageToTelegramBot(string imagePath)
+        {
+            string botToken = "7118569820:AAGKrobfosdvVyx44fTS9SpSJkeKL6i8WfI";
+            string chatId = "551578237";
+
+            var botClient = new TelegramBotClient(botToken);
+
+            using (var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            {
+                var inputOnlineFile = new InputOnlineFile(fileStream, "Расписание.png");
+                await botClient.SendPhotoAsync(chatId, inputOnlineFile, "Вот ваше расписание");
+            }
+        }
+
 
         public ActionResult RequestsList()
         {
