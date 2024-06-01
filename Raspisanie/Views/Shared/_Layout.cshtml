@@ -45,9 +45,12 @@
                         
 
                         <div id="requestsModal" class="modal">
+                            <span class="LBL">Заявки</span><span class="close"></span>
                             <div class="modal-content">
-                                <div id="myModalHeader"></div>
-                                <span class="close">&times;</span>
+                                <div id="myModalHeader">
+                                    
+                                </div>
+                                
                                 <div id="requestsListContainer"></div>
                             </div>
                         </div>
@@ -160,27 +163,43 @@
             left: 0;
             top: 0;
             padding:10px;
-            width: auto; /* Автоматическая ширина */
-            height: auto; /* Автоматическая высота */
-            box-shadow: 0px 0px 15px black;
+            padding-bottom:10px;
+            width: 700px;
             
+            max-height: 400px; /* Автоматическая высота */
+            box-shadow: 0px 0px 15px black;
+            background-color:#00001050;
             border-radius:15px;
+            overflow: hidden;
         }
 
         .modal-content {
             background-color: #fefefe;
-            
-            
+            margin-top: 10px;
+            margin-bottom: 10px;
             width: 100%; /* Можно изменить на нужную ширину */
-            
+            overflow-y: auto; /* Позволяет прокрутку, если содержимое превышает высоту */
+            height: 89%; /* Максимальная высота, после которой начнется прокрутка */
             position: relative; /* Относительное позиционирование для удобства перемещения */
         }
 
         .close {
+            height:25px;
+            width:25px;
             position: absolute;
             right: 10px;
             top: 10px;
             cursor: pointer;
+            background-color:red;
+            font-size:20px;
+            border-radius:15px;
+            
+            opacity: 0.75;
+        }
+        .LBL{
+            font-size:20px;
+            font-weight:bolder;
+            opacity: 1 ;
         }
     </style>
     @await RenderSectionAsync("Scripts", required: false)

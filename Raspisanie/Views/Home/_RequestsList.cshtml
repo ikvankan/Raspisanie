@@ -3,7 +3,7 @@
 <ul>
     @foreach (var request in Model)
     {
-        <li>@request.Date - @request.Description</li>
+        <li>@request.Teacher.TeacherName (@request.Date) - @request.Description</li>
     }
 </ul>
 <script>

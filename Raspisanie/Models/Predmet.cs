@@ -19,5 +19,7 @@ namespace Raspisanie.Models
         [ForeignKey("GroupId")]
         public virtual Group Group { get; set; }
         public bool Laboratory { get; set; }
+        public bool GEN { get; set; }
+        public bool NoAud { get; set; }
     }
 }

@@ -178,46 +178,44 @@ namespace Raspisanie.Controllers
                 { PLVM.Placement.Id = 0; }
                 
             }
-            
+            List<Placement> PlacementsToDelete = new List<Placement>();
             foreach (var placement in placementVMs)
             {
-                var PlacementsToDelete = _db.Placement.Where(p => p.Date == placement.Placement.Date).ToList();
-                foreach(var pl in PlacementsToDelete)
+                PlacementsToDelete = _db.Placement.Where(p => p.Date == placement.Placement.Date).ToList();
+                
+            }
+            foreach (var pl in PlacementsToDelete)
+            {
+                Predmet PredmetToPlus = _db.Predmet.FirstOrDefault(p => p.Id == pl.PredmetId);
+                Predmet SPredmetToPlus = _db.Predmet.FirstOrDefault(p => p.Id == pl.SecondPredmetId);
+                PredmetToPlus.Hours = PredmetToPlus.Hours + 2;
+                if(PredmetToPlus != SPredmetToPlus)
                 {
-                    _db.Placement.RemoveRange(pl);
+                    SPredmetToPlus.Hours = SPredmetToPlus.Hours + 2;
                 }
+                
+                _db.Placement.RemoveRange(pl);
             }
             foreach (var placementVM in placementVMs)
             {
+                Predmet PredmetToMinus = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.PredmetId);
+                Predmet SPredmetToMinus = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.SecondPredmetId);
+                PredmetToMinus.Hours = PredmetToMinus.Hours - 2;
+                if (PredmetToMinus != SPredmetToMinus)
+                {
+                    SPredmetToMinus.Hours = SPredmetToMinus.Hours - 2;
+                }
                 
                 _db.Placement.Add(placementVM.Placement);
 
             }
             _db.SaveChanges();
-            string chatId = "486450728";
-            string message = "Сохраненные данные:\n";
-            foreach (var placementVM in placementVMs)
-            {
-                var group = _db.Group.FirstOrDefault(g => g.Id == placementVM.Placement.GroupId);
-                var predmet = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.PredmetId);
-                var auditoria = _db.Auditoria.FirstOrDefault(p => p.Id == placementVM.Placement.AuditoriaId);
-                message += $"Группа: {group.Name}, Дисциплина: {predmet.PredmetName}, Date: {placementVM.Placement.Date}, Index: {placementVM.Placement.index}, Аудитория: {auditoria.AuditoryName}\n";
-            }
- 
-            // Отправка сообщения боту
-   
-            SendMessageToBot(chatId, message);
+            
             return RedirectToAction("Index");
 
         }
 
-        [HttpGet]
-        [Route("/SendMessageToBot")]
-        public async Task<IActionResult> SendMessageToBot(string chatId, string message)
-        {
-            await _telegramBotService.SendMessageAsync(chatId, message);
-            return Ok(new { status = "Message sent" });
-        }
+        
 
 
         
@@ -876,6 +874,7 @@ namespace Raspisanie.Controllers
 
             foreach (var placement in sortedPlacements)
             {
+                
                 if (placement.Id == Id)
                 {
                     var firstPredmet = _db.Predmet.FirstOrDefault(u => u.Id == placement.PredmetId);
@@ -909,10 +908,18 @@ namespace Raspisanie.Controllers
                     placement.SecondPredmetId = secondPredmet.Id;
 
                     placement.PredmetId = placement.PredmetId;
+                    
+
+                    
                 }
+
+
+
                 
+
                 PlacementVM placementVM = new PlacementVM()
                 {
+                    
                     NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
                     Placement = placement,
                     GroupSelectList = _db.Group.Select(i => new SelectListItem
@@ -942,13 +949,169 @@ namespace Raspisanie.Controllers
                         Value = i.Id.ToString()
                     }),
                 };
+                
                 placementList.Add(placementVM);
                 
             }
 
 
+
+
+
+
+
+
+
+
+            List<Placement> Eplacements = placementList.Select(p => p.Placement).ToList();
+
+            IEnumerable<Placement> EsortedPlacements = Eplacements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+            // Считаем количество записей для каждого GroupId
+            var EgroupCounts = Eplacements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in EsortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+            List<PlacementVM> EplacementList = new List<PlacementVM>();
+
+            foreach (var placement in EsortedPlacements)
+            {
+                bool teacherError = false;
+                bool SteacherError = false;
+                bool auditoryError = false;
+                bool SauditoryError = false;
+
+                var otherPlacements = EsortedPlacements.Where(p => p != placement);
+
+                if (otherPlacements.Any(p => p.TeacherId == placement.TeacherId && p.index == placement.index) ||
+                    otherPlacements.Any(p => p.SecondTeacherId == placement.TeacherId && p.index == placement.index && p.Predmet.Laboratory == true))
+                {
+                    teacherError = true;
+                }
+                if (otherPlacements.Any(p => p.SecondTeacherId == placement.SecondTeacherId && p.index == placement.index && p.Predmet.Laboratory == true) ||
+                    otherPlacements.Any(p => p.TeacherId == placement.SecondTeacherId && p.index == placement.index))
+                {
+                    SteacherError = true;
+                }
+                if (otherPlacements.Any(p => p.AuditoriaId == placement.AuditoriaId && p.index == placement.index && !p.Predmet.NoAud) ||
+                    otherPlacements.Any(p => p.SecondAuditoriaId == placement.AuditoriaId && p.index == placement.index && p.Predmet.Laboratory == true && !p.Predmet.NoAud))
+                {
+                    auditoryError = true;
+                }
+                if (otherPlacements.Any(p => p.SecondAuditoriaId == placement.SecondAuditoriaId && p.index == placement.index && p.Predmet.Laboratory == true && !p.Predmet.NoAud) ||
+                    otherPlacements.Any(p => p.AuditoriaId == placement.SecondAuditoriaId && p.index == placement.index && !p.Predmet.NoAud))
+                {
+                    SauditoryError = true;
+                }
+                if (placement.SecondAuditoriaId == placement.AuditoriaId && placement.Predmet.Laboratory == true)
+                {
+                    auditoryError = true;
+                    SauditoryError = true;
+                }
+                if (placement.SecondTeacherId == placement.TeacherId && placement.Predmet.Laboratory == true)
+                {
+                    SteacherError = true;
+                    teacherError = true;
+                }
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM EplacementVM = new PlacementVM()
+                {
+                    AudithoryError = auditoryError,
+                    SECAudithoryError = SauditoryError,
+                    TeacherError = teacherError,
+                    SECTeacherError = SteacherError,
+                    NumOfPredmets = EgroupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                EplacementList.Add(EplacementVM);
+
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             ModelState.Clear();
-            return View("ShowAll", placementList);
+            return View("ShowAll", EplacementList);
         }
 
         [HttpGet]
@@ -996,26 +1159,35 @@ namespace Raspisanie.Controllers
                 var otherPlacements = sortedPlacements.Where(p => p != placement);
 
                 if (otherPlacements.Any(p => p.TeacherId == placement.TeacherId && p.index == placement.index) ||
-                    otherPlacements.Any(p => p.SecondTeacherId == placement.TeacherId && p.index == placement.index))
+                    otherPlacements.Any(p => p.SecondTeacherId == placement.TeacherId && p.index == placement.index && p.Predmet.Laboratory == true))
                 {
                     teacherError = true;
                 }
-                if (otherPlacements.Any(p => p.SecondTeacherId == placement.SecondTeacherId && p.index == placement.index) ||
+                if (otherPlacements.Any(p => p.SecondTeacherId == placement.SecondTeacherId && p.index == placement.index && p.Predmet.Laboratory == true) ||
                     otherPlacements.Any(p => p.TeacherId == placement.SecondTeacherId && p.index == placement.index))
                 {
                     SteacherError = true;
                 }
-                if (otherPlacements.Any(p => p.AuditoriaId == placement.AuditoriaId && p.index == placement.index) ||
-                    otherPlacements.Any(p => p.SecondAuditoriaId == placement.AuditoriaId && p.index == placement.index))
+                if (otherPlacements.Any(p => p.AuditoriaId == placement.AuditoriaId && p.index == placement.index && !p.Predmet.NoAud) ||
+                    otherPlacements.Any(p => p.SecondAuditoriaId == placement.AuditoriaId && p.index == placement.index && p.Predmet.Laboratory == true && !p.Predmet.NoAud))
                 {
                     auditoryError = true;
                 }
-                if (otherPlacements.Any(p => p.SecondAuditoriaId == placement.SecondAuditoriaId && p.index == placement.index) ||
-                    otherPlacements.Any(p => p.AuditoriaId == placement.SecondAuditoriaId && p.index == placement.index))
+                if (otherPlacements.Any(p => p.SecondAuditoriaId == placement.SecondAuditoriaId && p.index == placement.index && p.Predmet.Laboratory == true && !p.Predmet.NoAud) ||
+                    otherPlacements.Any(p => p.AuditoriaId == placement.SecondAuditoriaId && p.index == placement.index && !p.Predmet.NoAud))
                 {
                     SauditoryError = true;
                 }
-
+                if (placement.SecondAuditoriaId == placement.AuditoriaId && placement.Predmet.Laboratory == true)
+                {
+                    auditoryError = true;
+                    SauditoryError = true;
+                }
+                if (placement.SecondTeacherId == placement.TeacherId && placement.Predmet.Laboratory == true)
+                {
+                    SteacherError = true;
+                    teacherError = true;
+                }
                 placement.PredmetId = placement.PredmetId;
                 PlacementVM placementVM = new PlacementVM()
                 {
@@ -1135,9 +1307,17 @@ namespace Raspisanie.Controllers
                         startRow = row;
                         old = temp;
                     }
-
-                    worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}   {model[i].Placement.Desc}";
-                    worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}, {model[i].Placement.Auditoria.AuditoryName}";
+                    if (model[i].Placement.Predmet.NoAud)
+                    {
+                        worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}   {model[i].Placement.Desc}";
+                        worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}";
+                    }
+                    else
+                    {
+                        worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}   {model[i].Placement.Desc}";
+                        worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}, {model[i].Placement.Auditoria.AuditoryName}";
+                    }
+                    
 
                     if (model[i].Placement.Predmet.Laboratory && (model[i].Placement.SecondPredmet != model[i].Placement.Predmet))
                     {
@@ -1146,7 +1326,15 @@ namespace Raspisanie.Controllers
                     }
                     if (model[i].Placement.Predmet.Laboratory)
                     {
-                        worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}, {model[i].Placement.SecondAuditoria.AuditoryName}";
+                        if (model[i].Placement.Predmet.NoAud)
+                        {
+                            worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}";
+                        }
+                        else
+                        {
+                            worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}, {model[i].Placement.SecondAuditoria.AuditoryName}";
+                        }
+                            
                     }
 
                     row++;
@@ -1281,9 +1469,28 @@ namespace Raspisanie.Controllers
 
         public ActionResult RequestsList()
         {
-            var requests = _db.Request.ToList(); // _context - это ваш DbContext
-            return PartialView("_RequestsList", requests);
+            var lastWeek = DateTime.Now.AddDays(-7);
+            var requests = _db.Request.ToList(); // Получаем все запросы
+
+            // Преобразуем Date из string в DateTime и фильтруем записи за последнюю неделю
+            IEnumerable<Request> sortedRequests = requests
+                .Select(r => new {
+                    Request = r,
+                    Date = DateTime.ParseExact(r.Date, "dd.MM.yyyy", CultureInfo.InvariantCulture) // Используйте правильный формат даты
+                })
+                .Where(r => r.Date >= lastWeek)
+                .OrderByDescending(r => r.Request.Id)
+                .Select(r => r.Request)
+                .ToList();
+
+            foreach (var request in sortedRequests)
+            {
+                request.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == request.TeacherId);
+            }
+            return PartialView("_RequestsList", sortedRequests);
         }
+
+
     }
 }
 

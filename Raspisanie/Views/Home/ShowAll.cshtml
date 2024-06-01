@@ -55,7 +55,7 @@
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId" />
-                           
+
                         }
                         else
                         {
@@ -70,23 +70,44 @@
 
                     </td>
                     <td>
-                        @if (Model[i].TeacherError)
+
+
+
+
+
+                        @if (Model[i].Placement.Predmet.NoAud == true)
                         {
-                            <select class="TEDI red-border" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            @if (Model[i].TeacherError)
+                            {
+                                <select class="TEDI red-border" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            else
+                            {
+                                <select class="TEDI" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            <input hidden asp-for="@Model[i].Placement.AuditoriaId" value="@Model[i].Placement.AuditoriaId" />
                         }
                         else
                         {
-                            <select class="TEDI" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            @if (Model[i].TeacherError)
+                            {
+                                <select class="TEDI red-border" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            else
+                            {
+                                <select class="TEDI" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            @if (Model[i].AudithoryError)
+                            {
+                                <select class="TEDI red-border" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                            }
+                            else
+                            {
+                                <select class="TEDI" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                            }
                         }
-                        @if (Model[i].AudithoryError)
-                        {
-                            <select class="TEDI red-border" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        }
-                        else
-                        {
-                            <select class="TEDI" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        }
-                        
+
+
                     </td>
                     <td>
                         @if (!Model[i].Placement.Predmet.Laboratory)
@@ -96,23 +117,38 @@
                         }
                         else
                         {
-                            @if (Model[i].SECTeacherError)
+                            @if (Model[i].Placement.SecondPredmet.NoAud == true)
                             {
-                                <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                @if (Model[i].SECTeacherError)
+                                {
+                                    <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                else
+                                {
+                                    <select class="TEDI" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                <input hidden asp-for="@Model[i].Placement.SecondAuditoriaId" value="@Model[i].Placement.SecondAuditoriaId" />
                             }
                             else
                             {
-                                <select class="TEDI" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                @if (Model[i].SECTeacherError)
+                                {
+                                    <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                else
+                                {
+                                    <select class="TEDI" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                @if (Model[i].SECAudithoryError)
+                                {
+                                    <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                                }
+                                else
+                                {
+                                    <select class="TEDI" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                                }
                             }
-                            if (Model[i].SECAudithoryError)
-                            {
-                                <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                            }
-                            else
-                            {
-                                <select class="TEDI" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                            }
-                           
+
                         }
 
 
@@ -141,11 +177,11 @@
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondPredmetId" value="@Model[i].Placement.SecondPredmetId"></input>
-                            
+
                         }
                         else
                         {
-                            <select data-id="@Model[i].Placement.Id"  class="predmetSelect" asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
+                            <select data-id="@Model[i].Placement.Id" class="predmetSelect" asp-for="@Model[i].Placement.SecondPredmetId" asp-items="@Model[i].SecondPredmetSelectList" value="@Model[i].Placement.SecondPredmetId"></select>
                             <input style="width:60px" type="text" asp-for="@Model[i].Placement.SDesc" value="@Model[i].Placement.SDesc" />
                         }
 
@@ -155,25 +191,46 @@
 
                     </td>
                     <td>
-                        @if (Model[i].TeacherError)
+
+
+
+
+
+                        @if (Model[i].Placement.Predmet.NoAud == true)
                         {
-                            <select class="TEDI red-border" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            @if (Model[i].TeacherError)
+                            {
+                                <select class="TEDI red-border" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            else
+                            {
+                                <select class="TEDI" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            <input hidden asp-for="@Model[i].Placement.AuditoriaId" value="@Model[i].Placement.AuditoriaId" />
                         }
                         else
                         {
-                            <select class="TEDI" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            @if (Model[i].TeacherError)
+                            {
+                                <select class="TEDI red-border" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            else
+                            {
+                                <select class="TEDI" asp-for="@Model[i].Placement.TeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                            }
+                            @if (Model[i].AudithoryError)
+                            {
+                                <select class="TEDI red-border" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                            }
+                            else
+                            {
+                                <select class="TEDI" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                            }
                         }
-                        @if (Model[i].AudithoryError)
-                        {
-                            <select class="TEDI red-border" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        }
-                        else
-                        {
-                            <select class="TEDI" asp-for="@Model[i].Placement.AuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                        }
+
+
                     </td>
                     <td>
-
                         @if (!Model[i].Placement.Predmet.Laboratory)
                         {
                             <input type="hidden" asp-for="@Model[i].Placement.SecondTeacherId" value="@Model[i].Placement.SecondTeacherId" />
@@ -181,23 +238,40 @@
                         }
                         else
                         {
-                            @if (Model[i].SECTeacherError)
+                            @if (Model[i].Placement.SecondPredmet.NoAud == true)
                             {
-                                <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                @if (Model[i].SECTeacherError)
+                                {
+                                    <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                else
+                                {
+                                    <select class="TEDI" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                <input hidden asp-for="@Model[i].Placement.SecondAuditoriaId" value="@Model[i].Placement.SecondAuditoriaId" />
                             }
                             else
                             {
-                                <select class="TEDI" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                @if (Model[i].SECTeacherError)
+                                {
+                                    <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                else
+                                {
+                                    <select class="TEDI" asp-for="@Model[i].Placement.SecondTeacherId" asp-items="@Model[i].TeacherSelectList"></select>
+                                }
+                                @if (Model[i].SECAudithoryError)
+                                {
+                                    <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                                }
+                                else
+                                {
+                                    <select class="TEDI" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
+                                }
                             }
-                            if (Model[i].SECAudithoryError)
-                            {
-                                <select class="TEDI red-border" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                            }
-                            else
-                            {
-                                <select class="TEDI" asp-for="@Model[i].Placement.SecondAuditoriaId" asp-items="@Model[i].AuditoriaSelectList"></select>
-                            }
+
                         }
+
 
                     </td>
                     <td>
@@ -224,7 +298,7 @@
 
 
 
-    <input  type="submit" value="SaveAll" asp-action="SaveSchedules">
+    <input type="submit" value="SaveAll" asp-action="SaveSchedules">
     <input type="submit" value="Excel" asp-action="ExportToExcel" />
 </form>
 <form action="/Home/GenerateAll" method="post">
@@ -243,7 +317,7 @@
             selectElements.forEach(function (selectElement) {
                 selectElement.addEventListener('change', function () {
                     var form = this.form;
-                    var placementId = this.getAttribute('data-id'); 
+                    var placementId = this.getAttribute('data-id');
                     console.log(placementId)// Получаем Id размещения из атрибута 'data-id'
                     // Формируем URL на стороне клиента
                     var actionUrl = '/Home/Refresh/' + placementId;
@@ -267,34 +341,34 @@
             });
         });
 
-    function updateTeacher(index) {
-        var predmetId = document.getElementById("z" + index + "__Placement_PredmetId").value;
-        $.ajax({
-            url: "/Home/GetTeacherName",
-            type: "GET",
-            data: { predmetId: predmetId },
-            success: function (result) {
-                document.getElementById("teacher-" + index).innerText = result;
-            }
-        });
+        function updateTeacher(index) {
+            var predmetId = document.getElementById("z" + index + "__Placement_PredmetId").value;
+            $.ajax({
+                url: "/Home/GetTeacherName",
+                type: "GET",
+                data: { predmetId: predmetId },
+                success: function (result) {
+                    document.getElementById("teacher-" + index).innerText = result;
+                }
+            });
 
 
-        $.ajax({
-            url: "/Home/GetSecondTeacherName",
-            type: "GET",
-            data: { predmetId: predmetId },
-            success: function (result) {
-                document.getElementById("secondteacher-" + index).innerText = result;
-            }
-        });
+            $.ajax({
+                url: "/Home/GetSecondTeacherName",
+                type: "GET",
+                data: { predmetId: predmetId },
+                success: function (result) {
+                    document.getElementById("secondteacher-" + index).innerText = result;
+                }
+            });
 
 
-    };
-
-    
+        };
 
 
-</script>
+
+
+    </script>
 }
 
 

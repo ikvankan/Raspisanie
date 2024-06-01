@@ -91,6 +91,29 @@
 
 
                 <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.NoAud"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Predmet.NoAud" class="form-check-input" />
+                        <span asp-validation-for="Predmet.NoAud" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+                <div class="mb-3 row">
+                    <div class="col-4">
+                        <label asp-for="Predmet.GEN"></label>
+                    </div>
+                    <div class="col-8">
+                        <input asp-for="Predmet.GEN" class="form-check-input" />
+                        <span asp-validation-for="Predmet.GEN" class="text-danger"></span>
+                    </div>
+
+                </div>
+
+
+                <div class="mb-3 row">
                     <div class="col-8 offset-4 row">
 
                         <div class="col">
