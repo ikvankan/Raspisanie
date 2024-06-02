@@ -52,7 +52,7 @@
                     </div>
                     <div class="col-8">
                         <select asp-for="Group.AuditoriaId" asp-items="@Model.AuditoriaSelectList" class="form-select">
-                            <option disabled selected>--Выберите аудиторию--</option>
+                            <option disabled selected>--Выберите--</option>
                         </select>
                         <span asp-validation-for="Group.AuditoriaId" class="text-danger"></span>
                     </div>
@@ -65,7 +65,7 @@
                     </div>
                     <div class="col-8">
                         <select asp-for="Group.TeacherId" asp-items="@Model.TeacherSelectList" class="form-select">
-                            <option disabled selected>--Выберите куратора--</option>
+                            <option disabled selected>--Выберите--</option>
                         </select>
                         <span asp-validation-for="Group.TeacherId" class="text-danger"></span>
                     </div>

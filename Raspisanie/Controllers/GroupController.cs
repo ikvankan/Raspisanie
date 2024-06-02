@@ -106,13 +106,13 @@ namespace Raspisanie.Controllers
             if (groupVM.Group.Id == 0)
             {
                 _db.Group.Add(groupVM.Group);
-                TempData[WC.Success] = "Предмет создан успешно!";
+                TempData[WC.Success] = "Создан успешно!";
             }
             else
             {
                 //обновляем
                 _db.Group.Update(groupVM.Group);
-                TempData[WC.Success] = "Предмет изменён успешно!";
+                TempData[WC.Success] = "Изменён успешно!";
             }
             _db.SaveChanges();
             return RedirectToAction("Index");
@@ -153,7 +153,7 @@ namespace Raspisanie.Controllers
 
             _db.Group.Remove(obj);
             _db.SaveChanges();
-            TempData[WC.Success] = "Аудитория удалена успешно!";
+            TempData[WC.Success] = "Удален успешно!";
             return RedirectToAction("Index");
         }
     }

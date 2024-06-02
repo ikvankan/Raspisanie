@@ -3,26 +3,29 @@
 <div class="container p-3">
     <div class="row pt-4">
         <div class="col-6">
-            <h2 class="text-primary">Преподователи</h2>
+            <h2 class="text-primary">Преподаватели</h2>
         </div>
         <div class="col-6 text-end">
             <a asp-controller="Teacher" asp-action="Upsert" class="btn btn-primary">
                 <i class="fa-sharp fa-solid fa-plus fa-beat"></i> &nbsp; Создать новый
             </a>
-
         </div>
     </div>
+    <br />
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Поиск..">
     <br /><br />
     @if (Model.Count() > 0)
     {
-        <table class=" table table-bordered table-striped" style="width:100%">
+        <table id="teacherTable" class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>
                         Имя
+                        <button class="sortBtn" onclick="sortTable(0, this)">▲</button>
                     </th>
                     <th>
                         Своя аудитория
+                        <button class="sortBtn" onclick="sortTable(1, this)">▲</button>
                     </th>
                     <th></th>
                 </tr>
@@ -30,7 +33,6 @@
             <tbody>
                 @foreach (var obj in Model)
                 {
-
                     <tr>
                         <td width="40%">@obj.TeacherName</td>
                         <td width="40%">@obj.Auditoria.AuditoryName</td>
@@ -51,6 +53,63 @@
     }
     else
     {
-        <p>Нет Преподователей</p>
+        <p>Нет преподавателей</p>
     }
 </div>
+
+<script>
+    function filterTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("teacherTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    var sortDirections = [1, 1]; // Для каждого столбца
+
+    function sortTable(n, btn) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("teacherTable");
+        switching = true;
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[n];
+                y = rows[i + 1].getElementsByTagName("TD")[n];
+                if (sortDirections[n] == 1) {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+        sortDirections[n] = -sortDirections[n];
+        btn.textContent = sortDirections[n] == 1 ? '▲' : '▼';
+    }
+</script>

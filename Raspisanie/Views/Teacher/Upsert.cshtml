@@ -1,11 +1,11 @@
 ﻿@model Raspisanie.Models.ViewModels.TeacherVM
 @{
-    var title = "Создание товара";
+    var title = "Создание преподователя";
 }
 <form method="post" asp-action="Upsert" enctype="multipart/form-data">
     @if (Model.Teacher.Id != 0)
     {
-        title = "Изменение товара";
+        title = "Изменение преподователя";
         <input asp-for="Teacher.Id" hidden />
     }
 
@@ -32,7 +32,7 @@
                     </div>
                     <div class="col-8">
                         <select asp-for="Teacher.AuditoryId" asp-items="@Model.AuditoriaSelectList" class="form-select">
-                            <option disabled selected>--Выберите тип товара--</option>
+                            <option disabled selected>--Выберите--</option>
                         </select>
                         <span asp-validation-for="Teacher.AuditoryId" class="text-danger"></span>
                     </div>

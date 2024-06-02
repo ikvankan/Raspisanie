@@ -29,6 +29,20 @@ namespace Raspisanie.Controllers
             }
             return View(objList);
         }
+        public IActionResult DeleteByDateRange(DateTime startDate, DateTime endDate)
+        {
+            // Преобразование всех записей в память и фильтрация на стороне клиента
+            var recordsToDelete = _db.Placement
+                                          .AsEnumerable()
+                                          .Where(p => DateTime.ParseExact(p.Date, "dd.MM.yyyy", null) >= startDate &&
+                                                      DateTime.ParseExact(p.Date, "dd.MM.yyyy", null) <= endDate)
+                                          .ToList();
+            _db.Placement.RemoveRange(recordsToDelete);
+            _db.SaveChanges();
+            TempData[WC.Success] = "Удалено успешно!";
+            return RedirectToAction("Index");
+        }
+
 
         //GET-UPSERT
         public IActionResult Upsert(int? Id)
@@ -89,13 +103,13 @@ namespace Raspisanie.Controllers
             if (placementVM.Placement.Id == 0)
             {
                 _db.Placement.Add(placementVM.Placement);
-                TempData[WC.Success] = "Предмет создан успешно!";
+                TempData[WC.Success] = "Создан успешно!";
             }
             else
             {
                 //обновляем
                 _db.Placement.Update(placementVM.Placement);
-                TempData[WC.Success] = "Предмет изменён успешно!";
+                TempData[WC.Success] = "Изменён успешно!";
             }
             _db.SaveChanges();
             return RedirectToAction("Index");
@@ -119,7 +133,7 @@ namespace Raspisanie.Controllers
             if (obj == null) { return NotFound(); }
             _db.Placement.Remove(obj);
             _db.SaveChanges();
-            TempData[WC.Success] = "Аудитория удалена успешно!";
+            TempData[WC.Success] = "Удалено успешно!";
             return RedirectToAction("Index");
         }
     }

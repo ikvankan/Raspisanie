@@ -1,50 +1,68 @@
 ﻿@model IEnumerable<Raspisanie.Models.Placement>
 
-
 <div class="container p-3">
     <div class="row pt-4">
         <div class="col-6">
-            <h2 class="text-primary"> Растановка</h2>
+            <h2 class="text-primary">Растановка</h2>
         </div>
         <div class="col-6 text-end">
             <a asp-action="Upsert" class="btn btn-primary">
                 <i class="fa-sharp fa-solid fa-plus fa-beat"></i> &nbsp; Создать новый
             </a>
-
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col-6">
+            <input type="text" id="searchInput" onkeyup="myFunction()" placeholder="Поиск..">
+        </div>
+        <div class="col-6 text-end">
+            <input type="date" id="startDate" placeholder="Начальная дата">
+            <input type="date" id="endDate" placeholder="Конечная дата">
+            <button class="btn btn-danger" onclick="deleteByDateRange()">Удалить</button>
         </div>
     </div>
     <br /><br />
     @if (Model.Count() > 0)
     {
-        <table class=" table table-bordered table-striped" style="width:100%">
+        <table id="myTable" class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>
                         Дата
+                        <button class="sortBtn" onclick="sortTable(0, this)">▲</button>
                     </th>
                     <th>
                         Группа
+                        <button class="sortBtn" onclick="sortTable(1, this)">▲</button>
                     </th>
                     <th>
                         Дисциплина 1
+                        <button class="sortBtn" onclick="sortTable(2, this)">▲</button>
                     </th>
                     <th>
                         Дисциплина 2
+                        <button class="sortBtn" onclick="sortTable(3, this)">▲</button>
                     </th>
                     <th>
-                        порядок
+                        Порядок
+                        <button class="sortBtn" onclick="sortTable(4, this)">▲</button>
                     </th>
                     <th>
-                        аудитория 1
+                        Аудитория 1
+                        <button class="sortBtn" onclick="sortTable(5, this)">▲</button>
                     </th>
                     <th>
-                        аудитория 2
+                        Аудитория 2
+                        <button class="sortBtn" onclick="sortTable(6, this)">▲</button>
                     </th>
                     <th>
                         Преподователь 1
+                        <button class="sortBtn" onclick="sortTable(7, this)">▲</button>
                     </th>
                     <th>
                         Преподователь 2
+                        <button class="sortBtn" onclick="sortTable(8, this)">▲</button>
                     </th>
                     <th></th>
                 </tr>
@@ -64,10 +82,10 @@
                         <td width="10%">@obj.SecondTeacher.TeacherName</td>
                         <td class="text-center">
                             <div class="w-75 btn-group" role="group">
-                                <a asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary ">
+                                <a asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-                                <a asp-route-Id="@obj.Id" asp-action="Delete" class="btn btn-danger ">
+                                <a asp-route-Id="@obj.Id" asp-action="Delete" class="btn btn-danger">
                                     <i class="fa-solid fa-trash"></i>
                                 </a>
                             </div>
@@ -82,3 +100,83 @@
         <p>Нет растановки</p>
     }
 </div>
+
+<script>
+    var sortDirections = Array.from({ length: 9 }, () => 1);
+
+    function sortTable(columnIndex, btn) {
+        var table, rows, switching, i, x, y, shouldSwitch;
+        table = document.getElementById("myTable");
+        switching = true;
+        while (switching) {
+            switching = false;
+            rows = table.rows;
+            for (i = 1; i < (rows.length - 1); i++) {
+                shouldSwitch = false;
+                x = rows[i].getElementsByTagName("TD")[columnIndex];
+                y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                if (sortDirections[columnIndex] == 1) {
+                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                } else {
+                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
+                        shouldSwitch = true;
+                        break;
+                    }
+                }
+            }
+            if (shouldSwitch) {
+                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                switching = true;
+            }
+        }
+        sortDirections[columnIndex] = -sortDirections[columnIndex];
+        btn.textContent = sortDirections[columnIndex] == 1 ? '▲' : '▼';
+        resetOtherButtons(columnIndex);
+    }
+
+    function resetOtherButtons(currentIndex) {
+        var buttons = document.getElementsByClassName("sortBtn");
+        for (var i = 0; i < buttons.length; i++) {
+            if (i !== currentIndex) {
+                buttons[i].textContent = '▲';
+                sortDirections[i] = 1;
+            }
+        }
+    }
+
+    function myFunction() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("myTable");
+        tr = table.getElementsByTagName("tr");
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    function deleteByDateRange() {
+        var startDate = document.getElementById("startDate").value;
+        var endDate = document.getElementById("endDate").value;
+        if (startDate && endDate) {
+            if (confirm("Вы уверены, что хотите удалить записи с " + startDate + " по " + endDate + "?")) {
+                window.location.href = '@Url.Action("DeleteByDateRange", "Placement")' + '?startDate=' + startDate + '&endDate=' + endDate;
+            }
+        } else {
+            alert("Пожалуйста, выберите начальную и конечную даты.");
+        }
+    }
+</script>

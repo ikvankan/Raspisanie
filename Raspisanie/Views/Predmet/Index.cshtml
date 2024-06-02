@@ -12,38 +12,44 @@
         </div>
     </div>
     <br />
-    <input type="text" id="searchInput" onkeyup="myFunction()" placeholder="Поиск..">
+    <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="Поиск..">
     <br /><br />
     @if (Model.Count() > 0)
     {
-        <table id="myTable" class=" table table-bordered table-striped" style="width:100%">
+        <table id="myTable" class="table table-bordered table-striped" style="width:100%">
             <thead>
                 <tr>
                     <th>
                         Имя
+                        <button class="sortBtn" onclick="sortTable(0, this)">▲</button>
                     </th>
                     <th>
-                        Преподователь
+                        Преподаватель
+                        <button class="sortBtn" onclick="sortTable(1, this)">▲</button>
                     </th>
                     <th>
-                        Преподователь 2
+                        Преподаватель 2
+                        <button class="sortBtn" onclick="sortTable(2, this)">▲</button>
                     </th>
                     <th>
                         Часы
+                        <button class="sortBtn" onclick="sortTable(3, this)">▲</button>
                     </th>
                     <th>
                         Группа
-                        <button id="sortBtnGroup" onclick="sortTableGroup()">▲</button>
+                        <button class="sortBtn" onclick="sortTable(4, this)">▲</button>
                     </th>
                     <th>
                         Практика
-                        <button id="sortBtn" onclick="sortTable()">▲</button>
+                        <button class="sortBtn" onclick="sortTable(5, this)">▲</button>
                     </th>
                     <th>
                         Генерация
+                        <button class="sortBtn" onclick="sortTable(6, this)">▲</button>
                     </th>
                     <th>
                         Без ауд.
+                        <button class="sortBtn" onclick="sortTable(7, this)">▲</button>
                     </th>
                     <th></th>
                 </tr>
@@ -51,22 +57,21 @@
             <tbody>
                 @foreach (var obj in Model)
                 {
-
                     <tr>
                         <td width="20%">@obj.PredmetName</td>
                         <td width="20%">@obj.Teacher.TeacherName</td>
                         <td width="20%">@obj.SecondTeacher.TeacherName</td>
                         <td width="3%">@obj.Hours</td>
                         <td width="10%">@obj.Group.Name</td>
-                        <td width="3%">@obj.Laboratory</td>
-                        <td width="2%">@obj.GEN</td>
-                        <td width="2%">@obj.NoAud</td>
+                        <td width="3%">@Html.DisplayFor(modelItem => obj.Laboratory)</td>
+                        <td width="2%">@Html.DisplayFor(modelItem => obj.GEN)</td>
+                        <td width="2%">@Html.DisplayFor(modelItem => obj.NoAud)</td>
                         <td class="text-center">
                             <div class="w-75 btn-group" role="group">
-                                <a asp-controller="Predmet" asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary ">
+                                <a asp-controller="Predmet" asp-route-Id="@obj.Id" asp-action="Upsert" class="btn btn-primary">
                                     <i class="fa-solid fa-pen-to-square"></i>
                                 </a>
-                                <a asp-controller="Predmet" asp-route-Id="@obj.Id" asp-action="Delete" class="btn btn-danger ">
+                                <a asp-controller="Predmet" asp-route-Id="@obj.Id" asp-action="Delete" class="btn btn-danger">
                                     <i class="fa-solid fa-trash"></i>
                                 </a>
                             </div>
@@ -83,13 +88,14 @@
 </div>
 
 <script>
-    function myFunction() {
+    function filterTable() {
         var input, filter, table, tr, td, i, j, txtValue;
         input = document.getElementById("searchInput");
         filter = input.value.toUpperCase();
         table = document.getElementById("myTable");
         tr = table.getElementsByTagName("tr");
-        for (i = 0; i < tr.length; i++) {
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
             td = tr[i].getElementsByTagName("td");
             for (j = 0; j < td.length; j++) {
                 if (td[j]) {
@@ -97,19 +103,15 @@
                     if (txtValue.toUpperCase().indexOf(filter) > -1) {
                         tr[i].style.display = "";
                         break;
-                    } else {
-                        tr[i].style.display = "none";
                     }
                 }
             }
         }
     }
 
+    var sortDirections = Array.from({ length: 8 }, () => 1); // Для каждого столбца
 
-
-    var sortDirection = 1;
-
-    function sortTable() {
+    function sortTable(columnIndex, btn) {
         var table, rows, switching, i, x, y, shouldSwitch;
         table = document.getElementById("myTable");
         switching = true;
@@ -118,9 +120,9 @@
             rows = table.rows;
             for (i = 1; i < (rows.length - 1); i++) {
                 shouldSwitch = false;
-                x = rows[i].getElementsByTagName("TD")[5];
-                y = rows[i + 1].getElementsByTagName("TD")[5];
-                if (sortDirection == 1) {
+                x = rows[i].getElementsByTagName("TD")[columnIndex];
+                y = rows[i + 1].getElementsByTagName("TD")[columnIndex];
+                if (sortDirections[columnIndex] == 1) {
                     if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
                         shouldSwitch = true;
                         break;
@@ -137,45 +139,7 @@
                 switching = true;
             }
         }
-        sortDirection = -sortDirection;
-        document.getElementById("sortBtn").textContent = sortDirection == 1 ? '▲' : '▼';
+        sortDirections[columnIndex] = -sortDirections[columnIndex];
+        btn.textContent = sortDirections[columnIndex] == 1 ? '▲' : '▼';
     }
-
-
-
-
-    var sortDirectionGroup = 1;
-
-    function sortTableGroup() {
-        var table, rows, switching, i, x, y, shouldSwitch;
-        table = document.getElementById("myTable");
-        switching = true;
-        while (switching) {
-            switching = false;
-            rows = table.rows;
-            for (i = 1; i < (rows.length - 1); i++) {
-                shouldSwitch = false;
-                x = rows[i].getElementsByTagName("TD")[4]; // Измените индекс на соответствующий столбцу "Группа"
-                y = rows[i + 1].getElementsByTagName("TD")[4]; // Измените индекс на соответствующий столбцу "Группа"
-                if (sortDirectionGroup == 1) {
-                    if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                } else {
-                    if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-                        shouldSwitch = true;
-                        break;
-                    }
-                }
-            }
-            if (shouldSwitch) {
-                rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-                switching = true;
-            }
-        }
-        sortDirectionGroup = -sortDirectionGroup;
-        document.getElementById("sortBtnGroup").textContent = sortDirectionGroup == 1 ? '▲' : '▼';
-    }
-
 </script>

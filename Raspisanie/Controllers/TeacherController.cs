@@ -73,6 +73,7 @@ namespace Raspisanie.Controllers
             {
                 //Создаем новый
                 return View(teacherVM);
+                
             }
             else
             {
@@ -93,13 +94,13 @@ namespace Raspisanie.Controllers
             if (teacherVM.Teacher.Id == 0)
             {
                 _db.Teacher.Add(teacherVM.Teacher);
-                TempData[WC.Success] = "Предмет создан успешно!";
+                TempData[WC.Success] = "Создан успешно!";
             }
             else
             {
                 //обновляем
                 _db.Teacher.Update(teacherVM.Teacher);
-                TempData[WC.Success] = "Предмет изменён успешно!";
+                TempData[WC.Success] = "Изменён успешно!";
             }
             _db.SaveChanges();
             return RedirectToAction("Index");
@@ -167,7 +168,7 @@ namespace Raspisanie.Controllers
 
             _db.Teacher.Remove(obj);
             _db.SaveChanges();
-            TempData[WC.Success] = "Аудитория удалена успешно!";
+            TempData[WC.Success] = "Удалено успешно!";
             return RedirectToAction("Index");
         }
     }

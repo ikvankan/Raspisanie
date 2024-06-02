@@ -77,13 +77,13 @@ namespace Raspisanie.Controllers
             if (predmetVM.Predmet.Id == 0)
             {
                 _db.Predmet.Add(predmetVM.Predmet);
-                TempData[WC.Success] = "Предмет создан успешно!";
+                TempData[WC.Success] = "Создан успешно!";
             }
             else
             {
                 //обновляем
                 _db.Predmet.Update(predmetVM.Predmet);
-                TempData[WC.Success] = "Предмет изменён успешно!";
+                TempData[WC.Success] = "Изменён успешно!";
             }
             _db.SaveChanges();
             return RedirectToAction("Index");

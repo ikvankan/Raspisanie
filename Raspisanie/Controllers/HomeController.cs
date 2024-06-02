@@ -171,7 +171,8 @@ namespace Raspisanie.Controllers
         [HttpPost]
         public IActionResult SaveSchedules(List<PlacementVM> placementVMs)
         {
-            foreach(var PLVM in placementVMs)
+            List<Placement> placements = placementVMs.Select(p => p.Placement).ToList();
+            foreach (var PLVM in placementVMs)
             {
                 var obj = _db.Placement.Find(PLVM.Placement.Id);
                 if (obj == null) 
@@ -210,8 +211,71 @@ namespace Raspisanie.Controllers
 
             }
             _db.SaveChanges();
-            
-            return RedirectToAction("Index");
+
+            IEnumerable<Placement> sortedPlacements = placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+            List<PlacementVM> placementList = new List<PlacementVM>();
+
+            foreach (var placement in sortedPlacements)
+            {
+
+
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+
+            }
+            TempData[WC.Success] = "Сохранено!";
+            ModelState.Clear();
+            return View("ShowAll", placementList);
 
         }
 
@@ -1357,17 +1421,13 @@ namespace Raspisanie.Controllers
                 stream.CopyTo(fileStream);
             }
 
-            // Конвертация Excel в изображение
-            var tempImagePath = Path.GetTempFileName() + ".png";
-            ConvertExcelToImage(tempExcelPath, tempImagePath);
-
-            // Отправка изображения через телеграмм бот
-            await SendImageToTelegramBot(tempImagePath);
+            
+            
+           
 
             // Удаление временных файлов
             System.IO.File.Delete(tempExcelPath);
-            System.IO.File.Delete(tempImagePath);
-
+            
             stream.Position = 0;
             return File(stream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", excelName);
         }
@@ -1454,16 +1514,51 @@ namespace Raspisanie.Controllers
 
         public async Task SendImageToTelegramBot(string imagePath)
         {
+            List<TGUser> tGUsers = _db.TGUser.ToList();
+            List<Teacher> teachers = _db.Teacher.ToList();
+            List<Raspisanie.Models.Group> groups = _db.Group.ToList();
             string botToken = "7118569820:AAGKrobfosdvVyx44fTS9SpSJkeKL6i8WfI";
-            string chatId = "551578237";
-
-            var botClient = new TelegramBotClient(botToken);
-
-            using (var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            foreach (TGUser user in tGUsers)
             {
-                var inputOnlineFile = new InputOnlineFile(fileStream, "Расписание.png");
-                await botClient.SendPhotoAsync(chatId, inputOnlineFile, "Вот ваше расписание");
+                if (user.ChatId != null)
+                {
+                    var botClient = new TelegramBotClient(botToken);
+
+                    using (var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var inputOnlineFile = new InputOnlineFile(fileStream, "Расписание.png");
+                        await botClient.SendPhotoAsync(user.ChatId, inputOnlineFile, "Новое расписание!");
+                    }
+                }
             }
+            foreach (Teacher user in teachers)
+            {
+                if (user.ChatId != null)
+                {
+                    var botClient = new TelegramBotClient(botToken);
+
+                    using (var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var inputOnlineFile = new InputOnlineFile(fileStream, "Расписание.png");
+                        await botClient.SendPhotoAsync(user.ChatId, inputOnlineFile, "Новое расписание!");
+                    }
+                }
+            }
+            foreach (Raspisanie.Models.Group user in groups)
+            {
+                if (user.ChatId != null)
+                {
+                    var botClient = new TelegramBotClient(botToken);
+
+                    using (var fileStream = new FileStream(imagePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        var inputOnlineFile = new InputOnlineFile(fileStream, "Расписание.png");
+                        await botClient.SendPhotoAsync(user.ChatId, inputOnlineFile, "Новое расписание!");
+                    }
+                }
+            }
+
+
         }
 
 
@@ -1490,6 +1585,250 @@ namespace Raspisanie.Controllers
             return PartialView("_RequestsList", sortedRequests);
         }
 
+
+        public async Task<IActionResult> SendAll(List<PlacementVM> model)
+        {
+            List<Placement> placements = model.Select(p => p.Placement).ToList();
+
+            IEnumerable<Placement> sortedPlacements = placements
+                .OrderBy(p => p.GroupId)
+                .ThenBy(p => p.index)
+                .ToList();
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+            ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+
+            var stream = new MemoryStream();
+            using (var package = new ExcelPackage(stream))
+            {
+                var worksheet = package.Workbook.Worksheets.Add("Расписание");
+
+                worksheet.Cells["A1:R200"].Style.Font.Name = "Times New Roman";
+
+                worksheet.Cells["A1"].Value = $"РАСПИСАНИЕ ЗАНЯТИЙ НА {DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dd.MM.yyyy} ({DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd})";
+                worksheet.Cells["A1:E1"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Cells["A1:E1"].Style.Font.Bold = true;
+                worksheet.Cells["A1:E1"].Style.Font.Size = 20;
+                worksheet.Cells["A1:E1"].Merge = true;
+                worksheet.Cells["A2"].Value = "Номер группы, ауд";
+                worksheet.Cells["B2:E2"].Merge = true;
+                worksheet.Cells["B2"].Value = "Расписание";
+                worksheet.Cells["B2:E2"].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+                worksheet.Column(1).Width = 30;
+                worksheet.Column(2).Width = 40;
+                worksheet.Column(3).Width = 30;
+                worksheet.Column(4).Width = 30;
+                worksheet.Column(5).Width = 30;
+
+                worksheet.Cells[2, 1, 2, 5].Style.Font.Bold = true;
+                worksheet.Cells[2, 1, 2, 5].Style.Fill.PatternType = ExcelFillStyle.Solid;
+                worksheet.Cells[2, 1, 2, 5].Style.Fill.BackgroundColor.SetColor(Color.LightGray);
+                worksheet.Cells[2, 1, model.Count + 2, 1].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[2, 2, model.Count + 2, 3].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[2, 2, model.Count + 2, 4].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                worksheet.Cells[2, 2, model.Count + 2, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+                int row = 3;
+                int old = -1;
+                int startRow = 3;
+                for (int i = 0; i < model.Count; i++)
+                {
+                    int temp = model[i].Placement.GroupId;
+                    if (old != temp)
+                    {
+                        if (i != 0)
+                        {
+                            worksheet.Cells[startRow, 1, row - 1, 1].Merge = true;
+                            worksheet.Row(startRow).Style.WrapText = true;
+                            worksheet.Cells[startRow, 1, row - 1, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                        }
+
+                        worksheet.Cells[row, 1].Value = $"{model[i].Placement.Group.Name} ауд. {model[i].Placement.Group.Auditoria.AuditoryName}\nКуратор {model[i].Placement.Group.Teacher.TeacherName}";
+
+                        startRow = row;
+                        old = temp;
+                    }
+                    if (model[i].Placement.Predmet.NoAud)
+                    {
+                        worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}   {model[i].Placement.Desc}";
+                        worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}";
+                    }
+                    else
+                    {
+                        worksheet.Cells[row, 2].Value = $"{model[i].Placement.index}.     {model[i].Placement.Predmet.PredmetName}   {model[i].Placement.Desc}";
+                        worksheet.Cells[row, 4].Value = $"{model[i].Placement.Teacher.TeacherName}, {model[i].Placement.Auditoria.AuditoryName}";
+                    }
+
+
+                    if (model[i].Placement.Predmet.Laboratory && (model[i].Placement.SecondPredmet != model[i].Placement.Predmet))
+                    {
+                        worksheet.Cells[row, 3].Value = $"{model[i].Placement.SecondPredmet.PredmetName}   {model[i].Placement.SDesc}";
+
+                    }
+                    if (model[i].Placement.Predmet.Laboratory)
+                    {
+                        if (model[i].Placement.Predmet.NoAud)
+                        {
+                            worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}";
+                        }
+                        else
+                        {
+                            worksheet.Cells[row, 5].Value = $"{model[i].Placement.SecondTeacher.TeacherName}, {model[i].Placement.SecondAuditoria.AuditoryName}";
+                        }
+
+                    }
+
+                    row++;
+                }
+                worksheet.Cells[startRow, 1, row - 1, 1].Merge = true;
+                worksheet.Row(startRow).Style.WrapText = true;
+                worksheet.Cells[startRow, 1, row - 1, 5].Style.Border.BorderAround(ExcelBorderStyle.Thin);
+
+                package.Save();
+            }
+
+            stream.Position = 0;
+            string excelName = $"Расписание-на{DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd.dd.MM.yyyy}.xlsx";
+
+            // Сохраняем Excel файл на диск временно
+            var tempExcelPath = Path.GetTempFileName() + ".xlsx";
+            using (var fileStream = new FileStream(tempExcelPath, FileMode.Create, FileAccess.Write))
+            {
+                stream.Position = 0;
+                stream.CopyTo(fileStream);
+            }
+
+            // Конвертация Excel в изображение
+            var tempImagePath = Path.GetTempFileName() + ".png";
+            ConvertExcelToImage(tempExcelPath, tempImagePath);
+
+            // Отправка изображения через телеграмм бот
+            await SendImageToTelegramBot(tempImagePath);
+
+            // Удаление временных файлов
+            System.IO.File.Delete(tempExcelPath);
+            System.IO.File.Delete(tempImagePath);
+
+            stream.Position = 0;
+
+
+
+            
+
+            foreach (var PLVM in model)
+            {
+                var obj = _db.Placement.Find(PLVM.Placement.Id);
+                if (obj == null)
+                { PLVM.Placement.Id = 0; }
+
+            }
+            List<Placement> PlacementsToDelete = new List<Placement>();
+            foreach (var placement in model)
+            {
+                PlacementsToDelete = _db.Placement.Where(p => p.Date == placement.Placement.Date).ToList();
+
+            }
+            foreach (var pl in PlacementsToDelete)
+            {
+                Predmet PredmetToPlus = _db.Predmet.FirstOrDefault(p => p.Id == pl.PredmetId);
+                Predmet SPredmetToPlus = _db.Predmet.FirstOrDefault(p => p.Id == pl.SecondPredmetId);
+                PredmetToPlus.Hours = PredmetToPlus.Hours + 2;
+                if (PredmetToPlus != SPredmetToPlus)
+                {
+                    SPredmetToPlus.Hours = SPredmetToPlus.Hours + 2;
+                }
+
+                _db.Placement.RemoveRange(pl);
+            }
+            foreach (var placementVM in model)
+            {
+                Predmet PredmetToMinus = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.PredmetId);
+                Predmet SPredmetToMinus = _db.Predmet.FirstOrDefault(p => p.Id == placementVM.Placement.SecondPredmetId);
+                PredmetToMinus.Hours = PredmetToMinus.Hours - 2;
+                if (PredmetToMinus != SPredmetToMinus)
+                {
+                    SPredmetToMinus.Hours = SPredmetToMinus.Hours - 2;
+                }
+
+                _db.Placement.Add(placementVM.Placement);
+
+            }
+            _db.SaveChanges();
+            
+            
+            // Считаем количество записей для каждого GroupId
+            var groupCounts = placements.GroupBy(p => p.GroupId).ToDictionary(g => g.Key, g => g.Count());
+
+            foreach (var obj in sortedPlacements)
+            {
+                obj.Group = _db.Group.FirstOrDefault(u => u.Id == obj.GroupId);
+                obj.Predmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.PredmetId);
+                obj.SecondPredmet = _db.Predmet.FirstOrDefault(u => u.Id == obj.SecondPredmetId);
+                obj.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.AuditoriaId);
+                obj.SecondAuditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.SecondAuditoriaId);
+                obj.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.TeacherId);
+                obj.SecondTeacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.SecondTeacherId);
+                obj.Group.Auditoria = _db.Auditoria.FirstOrDefault(u => u.Id == obj.Group.AuditoriaId);
+                obj.Group.Teacher = _db.Teacher.FirstOrDefault(u => u.Id == obj.Group.TeacherId);
+            }
+
+            List<PlacementVM> placementList = new List<PlacementVM>();
+
+            foreach (var placement in sortedPlacements)
+            {
+
+
+                placement.PredmetId = placement.PredmetId;
+                PlacementVM placementVM = new PlacementVM()
+                {
+                    NumOfPredmets = groupCounts[placement.GroupId], // Устанавливаем значение NumOfPredmets
+                    Placement = placement,
+                    GroupSelectList = _db.Group.Select(i => new SelectListItem
+                    {
+                        Text = i.Name,
+                        Value = i.Id.ToString()
+                    }),
+                    PredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString(),
+
+                    }),
+                    SecondPredmetSelectList = _db.Predmet.Where(p => p.GroupId == placement.GroupId).Where(p => p.Laboratory == true).Select(i => new SelectListItem
+                    {
+                        Text = i.PredmetName,
+                        Value = i.Id.ToString()
+                    }),
+                    AuditoriaSelectList = _db.Auditoria.Select(i => new SelectListItem
+                    {
+                        Text = i.AuditoryName,
+                        Value = i.Id.ToString()
+                    }),
+                    TeacherSelectList = _db.Teacher.Select(i => new SelectListItem
+                    {
+                        Text = i.TeacherName,
+                        Value = i.Id.ToString()
+                    }),
+                };
+                placementList.Add(placementVM);
+
+            }
+            TempData[WC.Success] = "Сохранено и отправленно!";
+            ModelState.Clear();
+            return View("ShowAll", placementList);
+        }
 
     }
 }
