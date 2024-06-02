@@ -298,8 +298,10 @@
 
 
 
-    <input type="submit" value="SaveAll" asp-action="SaveSchedules">
-    <input type="submit" value="Excel" asp-action="ExportToExcel" />
+    <input type="submit" value="Сохранить" asp-action="SaveSchedules">
+    <input type="submit" value="Вывод в Excel" asp-action="ExportToExcel" />
+    <input type="submit" value="Сохранить и отправить" asp-action="SendAll" />
+
 </form>
 <form action="/Home/GenerateAll" method="post">
     <input type="hidden" name="DateToGenerate" value="@dateObj.ToString("o")" />

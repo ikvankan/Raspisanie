@@ -125,27 +125,23 @@ namespace Raspisanie.Controllers
 
             var relatedPredmets1 = _db.Predmet.Where(p=>p.TeacherId==obj.Id).ToList();
             var relatedPredmets2 = _db.Predmet.Where(p => p.SecondTeacherId == obj.Id).ToList();
+            
+            
             foreach (var predmet in relatedPredmets1)
             {
-                var relatedPlacement_Predmets = _db.Placement.Where(pl=>pl.PredmetId==predmet.Id).ToList();
-                _db.Placement.RemoveRange(relatedPlacement_Predmets);
+                var RelatedPlacementsPredmet = _db.Placement.Where(pl => pl.PredmetId == predmet.Id).ToList();
+                _db.Placement.RemoveRange(RelatedPlacementsPredmet);
             }
             foreach (var predmet in relatedPredmets2)
             {
-                var relatedPlacement_Predmets = _db.Placement.Where(pl => pl.PredmetId == predmet.Id).ToList();
-                _db.Placement.RemoveRange(relatedPlacement_Predmets);
+                var RelatedPlacementsPredmet = _db.Placement.Where(pl => pl.SecondPredmetId == predmet.Id).ToList();
+                _db.Placement.RemoveRange(RelatedPlacementsPredmet);
             }
             _db.Predmet.RemoveRange(relatedPredmets1);_db.Predmet.RemoveRange(relatedPredmets2);
 
+
+
             var relatedGroups = _db.Group.Where(p => p.TeacherId == obj.Id).ToList();
-
-
-
-
-
-
-
-
 
             foreach (var group in relatedGroups)
             {
@@ -154,15 +150,30 @@ namespace Raspisanie.Controllers
                 // Удаляем связанные c таблицей Predmet записи из таблицы Placement
                 foreach (var predmet in relatedPredmets_Groups)
                 {
-                    var relatedPlacementsInPredmet = _db.Placement.Where(pll => pll.PredmetId == predmet.Id).ToList();
-                    _db.Placement.RemoveRange(relatedPlacementsInPredmet);
+                    var relatedPlacementPredmet_Groups = _db.Placement.Where(pll => pll.PredmetId == predmet.Id).ToList();
+                    var SrelatedPlacementPredmet_Groups = _db.Placement.Where(pll => pll.SecondPredmetId == predmet.Id).ToList();
+                    
+                    _db.Placement.RemoveRange(relatedPlacementPredmet_Groups); _db.Placement.RemoveRange(SrelatedPlacementPredmet_Groups);
                 }
                 _db.Predmet.RemoveRange(relatedPredmets_Groups);
                 _db.Placement.RemoveRange(relatedPlacements_Groups);
+                _db.Group.RemoveRange(relatedGroups);
                 // Удаляем связанные записи из таблицы Group
                 _db.Group.Remove(group);
             }
 
+            
+
+            var relatedPlacements = _db.Placement.Where(p=>p.PredmetId == obj.Id).ToList();
+            var SrelatedPlacements = _db.Placement.Where(p=>p.SecondPredmetId == obj.Id).ToList();
+            foreach (var placement in relatedPlacements)
+            {
+                _db.Placement.Remove(placement); 
+            }
+            foreach (var placement in SrelatedPlacements)
+            {
+                _db.Placement.Remove(placement);
+            }
 
 
 

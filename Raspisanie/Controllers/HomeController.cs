@@ -34,7 +34,6 @@ namespace Raspisanie.Controllers
 
         private readonly ApplicationDbContext _db;
         
-
         public HomeController(ILogger<HomeController> logger, ApplicationDbContext db, TelegramBotService telegramBotService)
         {
             _logger = logger;
@@ -57,8 +56,6 @@ namespace Raspisanie.Controllers
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-
 
         [HttpPost]
         public IActionResult Generate(string groupNumber)
@@ -165,8 +162,6 @@ namespace Raspisanie.Controllers
 
             return View(newPlacements);
         }
-
-
 
         [HttpPost]
         public IActionResult SaveSchedules(List<PlacementVM> placementVMs)
@@ -279,10 +274,6 @@ namespace Raspisanie.Controllers
 
         }
 
-        
-
-
-        
         public IActionResult GenerateAll(DateTime DateToGenerate)
         {
             IEnumerable<Models.Group> GroupList = _db.Group.ToList();
@@ -566,6 +557,7 @@ namespace Raspisanie.Controllers
 
             return View(placementList);
         }
+
         public string GetTeacherName(int predmetId)
         {
             // Load the Predmet from the database
@@ -574,7 +566,6 @@ namespace Raspisanie.Controllers
             return teacher.TeacherName;
         }
 
-
         public string GetSecondTeacherName(int predmetId)
         {
             // Load the Predmet from the database
@@ -582,7 +573,6 @@ namespace Raspisanie.Controllers
             var teacher = _db.Teacher.FirstOrDefault(pl => pl.Id == predmet.SecondTeacherId);
             return teacher.TeacherName;
         }
-
 
         public IActionResult ShowAll(DateTime DateToShow)
         {
@@ -650,9 +640,9 @@ namespace Raspisanie.Controllers
 
             return View(placementList);
         }
-        
+
         [HttpPost]
-        public IActionResult DeletePlacement(/*string GroupId, int Index, DateTime DateToShow*/ List<PlacementVM> placementVMs, int? Id)
+        public IActionResult DeletePlacement( List<PlacementVM> placementVMs, int? Id)
         {
 
             
@@ -759,8 +749,9 @@ namespace Raspisanie.Controllers
             ModelState.Clear();
             return View("ShowAll", placementList);
         }
+
         [HttpPost]
-        public IActionResult AddPlacement(/*string GroupId, DateTime DateToShow,*/ List<PlacementVM> placementVMs, int? Id)
+        public IActionResult AddPlacement( List<PlacementVM> placementVMs, int? Id)
         {
             int indexI = 1;
             
@@ -901,7 +892,6 @@ namespace Raspisanie.Controllers
             //// Получите обновленные данные и верните их обратно на страницу
             //return RedirectToAction("ShowAll", new { DateToShow = DateToShow });
         }
-
 
         [HttpPost]
         public IActionResult Refresh(List<PlacementVM> placementVMs, int? Id)
@@ -1296,7 +1286,6 @@ namespace Raspisanie.Controllers
             return View("ShowAll", placementList);
         }
 
-
         public async Task<IActionResult> ExportToExcel(List<PlacementVM> model)
         {
             List<Placement> placements = model.Select(p => p.Placement).ToList();
@@ -1511,7 +1500,6 @@ namespace Raspisanie.Controllers
             }
         }
 
-
         public async Task SendImageToTelegramBot(string imagePath)
         {
             List<TGUser> tGUsers = _db.TGUser.ToList();
@@ -1561,7 +1549,6 @@ namespace Raspisanie.Controllers
 
         }
 
-
         public ActionResult RequestsList()
         {
             var lastWeek = DateTime.Now.AddDays(-7);
@@ -1584,7 +1571,6 @@ namespace Raspisanie.Controllers
             }
             return PartialView("_RequestsList", sortedRequests);
         }
-
 
         public async Task<IActionResult> SendAll(List<PlacementVM> model)
         {
@@ -1832,5 +1818,3 @@ namespace Raspisanie.Controllers
 
     }
 }
-
-
