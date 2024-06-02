@@ -1400,7 +1400,7 @@ namespace Raspisanie.Controllers
             }
 
             stream.Position = 0;
-            string excelName = $"Расписание-на{DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd.dd.MM.yyyy}.xlsx";
+            string excelName = $"Расписание-на {DateTime.ParseExact(model.FirstOrDefault().Placement.Date, "dd.MM.yyyy", null):dddd.dd.MM.yyyy}.xlsx";
 
             // Сохраняем Excel файл на диск временно
             var tempExcelPath = Path.GetTempFileName() + ".xlsx";
