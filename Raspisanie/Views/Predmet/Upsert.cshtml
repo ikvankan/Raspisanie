@@ -1,11 +1,11 @@
 ﻿@model Raspisanie.Models.ViewModels.PredmetVM
 @{
-    var title = "Создание Дисциплины";
+    var title = "Создание дисциплины";
 }
 <form method="post" asp-action="Upsert" enctype="multipart/form-data">
     @if (Model.Predmet.Id != 0)
     {
-        title = "Изменение Дисциплины";
+        title = "Изменение дисциплины";
         <input asp-for="Predmet.Id" hidden />
     }
 

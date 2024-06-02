@@ -1,11 +1,11 @@
 ﻿@model Raspisanie.Models.ViewModels.PlacementVM
 @{
-    var title = "Создание растановки";
+    var title = "Создание расстановки";
 }
 <form method="post" asp-action="Upsert" enctype="multipart/form-data">
     @if (Model.Placement.Id != 0)
     {
-        title = "Изменение растановки";
+        title = "Изменение расстановки";
         <input asp-for="Placement.Id" hidden />
     }
 

@@ -308,11 +308,12 @@ namespace Raspisanie.Controllers
                 default:
                     throw new ArgumentException("error");
             }
-            bool CanGen = false;
+            
             for (int i = 0; i < numOfPredmet; i++) 
             {
                 foreach (var group in GroupList)
                 {
+                    bool CanGen = false;
 
                     int numG = 0;
                     while (!CanGen)
@@ -320,7 +321,19 @@ namespace Raspisanie.Controllers
                         
                         IEnumerable<Predmet> filteredPredmetList = PredmetList.Where(p => p.GroupId == group.Id).ToList();
                         Random random = new Random();
-                        
+                        if(filteredPredmetList.Count() == 0)
+                        {
+                            CanGen = true;
+                            continue;
+                        }
+                        foreach(var pred in filteredPredmetList)
+                        {
+                            if(pred.GEN == true|| filteredPredmetList.Count() == 0||pred.Hours<=0)
+                            {
+                                CanGen = false;
+                                continue;
+                            }
+                        }
                         // Выбор случайного предмета
 
                         int randomIndex = random.Next(filteredPredmetList.Count()) + 1;
