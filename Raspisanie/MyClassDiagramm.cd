@@ -1,0 +1,165 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Raspisanie.Models.ViewModels.GroupVM">
+    <Position X="14.5" Y="5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAgAA=</HashCode>
+      <FileName>Models\ViewModels\GroupVM.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.ViewModels.PlacementVM">
+    <Position X="16.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAQAAAAAAAAAAAAEAAAQEAgECAAAAAAAAAAAGAAAhAA=</HashCode>
+      <FileName>Models\ViewModels\PlacementVM.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.ViewModels.PredmetVM">
+    <Position X="14.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAQAAAAAAIAAAAAAAAAAAAAgAA=</HashCode>
+      <FileName>Models\ViewModels\PredmetVM.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.ViewModels.TeacherVM">
+    <Position X="9.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAA=</HashCode>
+      <FileName>Models\ViewModels\TeacherVM.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.Auditoria">
+    <Position X="5.75" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAAAAAACQAAAIAAAAAAAAAA=</HashCode>
+      <FileName>Models\Auditoria.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.ErrorViewModel">
+    <Position X="12.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAIAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\ErrorViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.Group">
+    <Position X="14.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAAAAAAAAAAAAAIAACAQAAAAAAAAAAQAAAAABACQ=</HashCode>
+      <FileName>Models\Group.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.Placement">
+    <Position X="12.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAEBEIAAAQAAAAAAACAAAAoIAAAABAQAAUAARAiA=</HashCode>
+      <FileName>Models\Placement.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.Predmet">
+    <Position X="11" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAEBEICAUAQAQAAAACAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Predmet.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.Request">
+    <Position X="5.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAECAAAAAAAgAAAAAAAACAAAAAAAAAABAAAAAAAAAAA=</HashCode>
+      <FileName>Models\Request.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.Teacher">
+    <Position X="5.75" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAEAAQAAAAAAAAAAAAAQAAAAAAAAQ=</HashCode>
+      <FileName>Models\Teacher.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Models.TGUser">
+    <Position X="5.75" Y="7.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>Models\TGUser.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.AuditoriaController">
+    <Position X="9.25" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAEAAEACAAEAAgAAAAA=</HashCode>
+      <FileName>Controllers\AuditoriaController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.BotController">
+    <Position X="11" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAQ=</HashCode>
+      <FileName>Controllers\BotController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.GroupController">
+    <Position X="7.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAEAAQAAAAEAAgAAAAA=</HashCode>
+      <FileName>Controllers\GroupController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.HomeController">
+    <Position X="4" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AACAgAAAAABEIYAACACAAEECIAAAAQABAAERAEABCgA=</HashCode>
+      <FileName>Controllers\HomeController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.PlacementController">
+    <Position X="7.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAACAAAAAAAAAAAAAAAAEAAQAAAAEAAgAAAAA=</HashCode>
+      <FileName>Controllers\PlacementController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.PredmetController">
+    <Position X="11" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAEAAQAAAAEAAgAAAAA=</HashCode>
+      <FileName>Controllers\PredmetController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Controllers.TeacherController">
+    <Position X="16.25" Y="3.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAAAAAAAAAAAAAAAAAAAAAEAAQAAAAEAAgAAAAA=</HashCode>
+      <FileName>Controllers\TeacherController.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Data.ApplicationDbContext">
+    <Position X="4" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAEAAEAAAAAAAAAAAAAAAAgAAAoAgAAAAQAAAAAAAAA=</HashCode>
+      <FileName>Data\ApplicationDbContext.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.Program">
+    <Position X="5.75" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAA=</HashCode>
+      <FileName>Program.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.TelegramBotService">
+    <Position X="7.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>TelegramBotService.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Raspisanie.WC">
+    <Position X="9.25" Y="3.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CICAAAAAAAAAAQAAQAAAAIAAAgCAAEIAAAADAgAAAgA=</HashCode>
+      <FileName>WC.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>
